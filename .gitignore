@@ -13,7 +13,8 @@ build/
 develop-eggs/
 dist/
 downloads/
-eggs/
+eggs/\
+
 .eggs/
 lib/
 lib64/
@@ -41,6 +42,7 @@ db.sqlite3
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+Pipfile.lock
 
 # Unit test / coverage reports
 htmlcov/
