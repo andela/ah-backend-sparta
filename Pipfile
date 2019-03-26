@@ -11,6 +11,9 @@ jwt = "*"
 django-cors-headers = "*"
 djangorestframework = "*"
 django-extensions = "*"
+dj-database-url = "*"
+psycopg2-binary = "*"
+python-decouple = "*"
 
 [requires]
 python_version = "3.6.5"

@@ -24,6 +24,13 @@ var/
 .installed.cfg
 *.egg
 .idea/
+#dotenv
+.env
+
+# SQLite3
+db.sqlite3
+#vscode
+.vscode/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
