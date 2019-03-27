@@ -14,6 +14,8 @@ django-extensions = "*"
 dj-database-url = "*"
 psycopg2-binary = "*"
 python-decouple = "*"
+coveralls = "*"
+coverage = "*"
 
 [requires]
 python_version = "3.6.5"
