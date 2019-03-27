@@ -15,4 +15,7 @@ install:
   - pipenv install
 
 script:
-- python manage.py test
+- coverage run --source='authors/apps' manage.py test && coverage report
+
+after_success:
+- coveralls

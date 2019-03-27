@@ -1,6 +1,7 @@
 Authors Haven - A Social platform for the creative at heart.
 =======
 [![Build Status](https://travis-ci.com/andela/ah-backend-sparta.svg?branch=develop)](https://travis-ci.com/andela/ah-backend-sparta)
+[![Coverage Status](https://coveralls.io/repos/github/andela/ah-backend-sparta/badge.svg?branch=develop)](https://coveralls.io/github/andela/ah-backend-sparta?branch=develop)
 
 ## Vision
 Create a community of like minded authors to foster inspiration and innovation
