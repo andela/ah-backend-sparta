@@ -20,6 +20,7 @@ coverage = "*"
 gunicorn = "*"
 django-heroku = "*"
 pipenv-to-requirements = "*"
+django-rest-swagger = "*"
 
 [requires]
 python_version = "3.6.5"
