@@ -4,6 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pylint = "*"
 
 [packages]
 django = "*"
@@ -16,6 +17,9 @@ psycopg2-binary = "*"
 python-decouple = "*"
 coveralls = "*"
 coverage = "*"
+gunicorn = "*"
+django-heroku = "*"
+pipenv-to-requirements = "*"
 
 [requires]
 python_version = "3.6.5"
