@@ -7,6 +7,20 @@ login_credentials_data =  {
                 "password": "user@12345"
             }
         }
+test_user_data =  {
+            "user": {
+                "username": "testuser",
+                "email": "testuser2@gmail.com",
+                "password": "user@12345"
+            }
+        }
+test_user_data_password_change =  {
+            "user": {
+                "username": "testuser",
+                "email": "testuser2@gmail.com",
+                "password": "abcdefgh"
+            }
+        }
 empty_string_username = {
                 "user": {
                     "username": "",
@@ -41,6 +55,14 @@ login_data = {
     			 "password":"user@12345"
          }
         }
+
+auth_change_password = {
+    "user": {
+                 "email":"testuser@gmail.com",
+    			 "password":"abcdefgh"
+         }
+}
+
 invalid_login_data = {
            "user": {
                  "email":"testuser@gmail.comhhfhf",

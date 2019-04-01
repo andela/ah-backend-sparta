@@ -117,4 +117,25 @@ class User(AbstractBaseUser, PermissionsMixin):
         """
         return self.username
 
+    @property
+    def token(self):
+        """
+        generate token by calling `user.token` NOT `user.generate_jwt_token()`
+        The @property method makes it possible to make a function accessbile 
+        in the class, and can be accessed using the dot notation. 
+        """
+        return self._generate_jwt_token()
 
+    def _generate_jwt_token(self):
+        """
+        Generates a JSON Web Token that stores this user's ID and has an expiry
+        date set to 1 hour into the future.
+        """
+        dt = datetime.now() + timedelta(hours=1)
+
+        token = jwt.encode({
+            'id': self.pk,
+            'exp': int(dt.strftime('%s'))
+        }, settings.SECRET_KEY, algorithm='HS256')
+
+        return token.decode('utf-8')
