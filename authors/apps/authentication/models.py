@@ -81,6 +81,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     # A timestamp reprensenting when this object was last updated.
     updated_at = models.DateTimeField(auto_now=True)
 
+    # This will differentiate social auth users from the others that
+    # that registered using the app
+    registration_platform = models.CharField(max_length=50, default='app')
+
     # More fields required by Django when specifying a custom user model.
 
     # The `USERNAME_FIELD` property tells us which field we will use to log in.

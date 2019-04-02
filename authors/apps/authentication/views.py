@@ -1,12 +1,12 @@
 from rest_framework import status
-from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView, ListCreateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .renderers import UserJSONRenderer
 from .serializers import (
-    LoginSerializer, RegistrationSerializer, UserSerializer
+LoginSerializer, RegistrationSerializer, UserSerializer, FacebookAuthSerializer, GoogleAuthSerializer, TwitterAuthSerializer
 )
 
 
@@ -72,3 +72,25 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class SocialAuthApiView(ListCreateAPIView):
+    permissions_class = (AllowAny, )
+
+    def post(self, request):
+        """
+        Fetch token from request, serialize and validate it
+        """
+        user_token = request.data.get('user_token', {})
+        serializer = self.serializer_class(data=user_token)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        return Response(data, status=status.HTTP_200_OK)
+
+class FacebookAuthApiView(SocialAuthApiView):
+    serializer_class = FacebookAuthSerializer
+    
+class GoogleAuthApiView(SocialAuthApiView):
+    serializer_class = GoogleAuthSerializer
+    
+class TwitterAuthApiView(SocialAuthApiView):
+    serializer_class = TwitterAuthSerializer

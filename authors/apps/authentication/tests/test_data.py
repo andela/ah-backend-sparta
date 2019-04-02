@@ -81,3 +81,39 @@ login_data_miss_password = {
         }
       
 empty_login_data_object = {}
+
+
+# Social Data
+invalid_facebook_token = {
+    'user_token' : {
+        'auth_token': 'rxdtcfyvgubhinjihiguftyrdyfugih'
+    }
+}
+
+invalid_google_token = {
+    'user_token' : {
+        'auth_token': 'EAAFV9Sn6cKIBAJvKphYGHJ8hiYmzRhxFVLTugGtmpwVJEQB8xiNR7mpEZAWQcoHgTSMNJLRV9dE9g0b3vFX4A06pTrqg66cg1pRMNzfzWJhCHzVZBreUmnwXR7aoPHEJugA8ttZCS1baWvC932umvcuWJ8UBQiLBHZBAIOH8ZBSNZBUGB6mH7dOhZAn6qjhZBwWkPWSbTDSUgwZDZD'
+    }
+}
+
+invalid_twitter_tokens = {
+    'user_token' : {
+        'auth_token': 'hksjnd_@ksljdGHJ8hiYmzRhxFVLTugGtmpwVJEQB8xiNR7mpEZAW QcoHgTSMNJLRV9dE9g0b3vFX4A06pTrqg66cg1pRMNzfzWJhCHzVZBreUmnwXR7aoPHEJugA8ttZCS1baWvC932umvcuWJ8UBQiLBHZBAIOH8ZBSNZBUGB6mH7dOhZAn6qjhZBwWkPWSbTDSUgwZDZD'
+    }
+}
+
+one_twitter_token = {
+    'user_token' : {
+        'auth_token': 'hksjnd_@ksljdGHJ8hiYmzRhxFVLTugGtmpwVJEQB8xiNR7mpEQcoHgTSMNJLRV9dE9g0b3vFX4A06pTrqg66cg1pRMNzfzWJhCHzVZBreUmnwXR7aoPHEJugA8ttZCS1baWvC932umvcuWJ8UBQiLBHZBAIOH8ZBSNZBUGB6mH7dOhZAn6qjhZBwWkPWSbTDSUgwZDZD'
+    }
+}
+
+social_reg_no_email_data = {
+    'email': '',
+    'username': 'testname'
+}
+
+social_reg_data = {
+    'email': 'test@testmail.com',
+    'username': 'testname'
+}
