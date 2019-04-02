@@ -20,7 +20,7 @@ django-heroku
 django-rest-swagger
 djangorestframework
 gunicorn
-jwt
 pipenv-to-requirements
 psycopg2-binary
+pyjwt
 python-decouple

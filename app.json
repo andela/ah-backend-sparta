@@ -23,6 +23,9 @@
     "DB_USER": {
       "required": true
     },
+    "SECRET_KEY": {
+      "required": true
+    },
     "HEROKU_POSTGRESQL_BRONZE_URL": {
       "required": true
     }
