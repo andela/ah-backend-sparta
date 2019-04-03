@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_extensions',
     'rest_framework',
-    'rest_framework_swagger',    
+    'rest_framework_swagger',
+    
     'authors.apps.authentication',
     'authors.apps.core',
     'authors.apps.profiles',

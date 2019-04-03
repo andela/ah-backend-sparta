@@ -10,5 +10,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('swagger-docs/', schema_view),
     path('api/', include('authors.apps.authentication.urls')),
+    path('api/', include('authors.apps.profiles.urls')),
+
 ]
 
