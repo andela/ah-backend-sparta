@@ -79,6 +79,12 @@ login_data_miss_password = {
                     "email":"franciskiryowa68@gmail.com"
                 }
         }
+
+article_data = {
+	"title":"hello slug",
+	"description":"test",
+	"body":"changing state --test user"
+}
       
 empty_login_data_object = {}
 
