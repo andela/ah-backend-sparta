@@ -2,7 +2,7 @@ register_user1_data =  {
             "user": {
                 "username": "maria22",
                 "email": "maria@gmail.com",
-                "password": "maria@12345"
+                "password": "Maria@12345"
             }
 }
 
@@ -10,7 +10,7 @@ register_user2_data =  {
             "user": {
                 "username": "joan22",
                 "email": "joan@gmail.com",
-                "password": "joan@12345"
+                "password": "Joan@12345"
             }
 }
 
@@ -34,3 +34,4 @@ update_user_profile_data_with_wrong_url = {
     "bio": "I love working out",
     "image": "http"
 }
+

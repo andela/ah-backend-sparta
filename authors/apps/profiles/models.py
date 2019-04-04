@@ -7,7 +7,6 @@ from django.dispatch import receiver
 from authors.apps.authentication.models import User
 
 
-
 class Profile(models.Model):
     """
     Class to handle creation of user profiles
@@ -21,9 +20,9 @@ class Profile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-
     def __str__(self):
         return self.user
+
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -33,12 +32,10 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance, username=instance.username)
 
+
 @receiver(post_save, sender=User)
 def save_profile(sender, instance, **kwargs):
     """
     Method to save the registered user partial profile
     """
     instance.profile.save()
-
-
-    

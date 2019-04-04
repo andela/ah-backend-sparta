@@ -1,17 +1,14 @@
-
-from rest_framework import status
-from rest_framework.generics import RetrieveAPIView, ListAPIView, CreateAPIView, RetrieveUpdateAPIView
-from rest_framework.permissions import(
-    AllowAny,IsAuthenticatedOrReadOnly, IsAuthenticated
-)
-from .permissions import  IsOwnerOrReadOnly
 from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
-from .models import Profile
-from .serializers import ProfileSerializer
-from .renderers import ProfileJSONRenderer
-from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
+from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
+from rest_framework.permissions import (
+    AllowAny
+)
+from rest_framework.response import Response
+
+from .models import Profile
+from .renderers import ProfileJSONRenderer
+from .serializers import ProfileSerializer
 
 
 class ProfileCreateAPIView(ListAPIView):
