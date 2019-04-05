@@ -155,3 +155,10 @@ SWAGGER_SETTINGS = {
     },
 }
 django_heroku.settings(locals()) 
+
+# Twitter Consumer Api keys
+TWITTER_CONSUMER_KEY = config('TWITTER_CONSUMER_KEY')
+TWITTER_CONSUMER_SECRET = config('TWITTER_CONSUMER_SECRET')
+
+# Social User Pass
+SOCIAL_USER_PASS = config('SOCIAL_USER_PASS')

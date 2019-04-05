@@ -77,12 +77,3 @@ class TestLoginSerializer(BaseTestCase):
         class_instance = UpdateUserInstance()
         self.assertEqual(UserSerializer().update(class_instance, data_to_update_user), class_instance)
 
-
-        
-        
-        
-       
-        
-
-
-    

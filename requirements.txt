@@ -19,8 +19,11 @@ django-extensions
 django-heroku
 django-rest-swagger
 djangorestframework
+facebook-sdk
+google-api-python-client
 gunicorn
 pipenv-to-requirements
 psycopg2-binary
 pyjwt
 python-decouple
+python-twitter

@@ -1,9 +1,15 @@
 from django.contrib.auth import authenticate
+from django.conf import settings
 
 from rest_framework import serializers
 
-from .models import User
+import facebook
+import twitter
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
+from .models import User
+from .social_registration import register_social_user
 
 class RegistrationSerializer(serializers.ModelSerializer):
     """Serializers registration requests and creates a new user."""
@@ -147,3 +153,96 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+class SocialAuthSerializer(serializers.Serializer):
+    """
+    Social Authentication parent class
+    """
+    auth_token = serializers.CharField()
+    
+    def validate_auth_token(self, auth_token):
+        user_data = self.get_user_data(auth_token)
+        return user_data
+
+
+class FacebookAuthSerializer(SocialAuthSerializer):
+    """
+    Inherits from SocialAuthSerializer
+    """
+    def get_user_data(self, auth_token):
+        """
+        This function decodes the received token into data required from the user, 
+        all this with the help of facebook's GraphAPI. Data received includes email,
+        name and profile picture
+        """
+        try:
+            graph = facebook.GraphAPI(access_token=auth_token)
+            user_profile = graph.request('/me?fields=name,email,picture')
+            
+            email = user_profile['email']
+            name = user_profile['name']
+
+            username = name.replace(' ', '_')
+
+            return register_social_user(email, username)
+
+        except:
+            return 'Please provide a valid token'
+                
+
+class GoogleAuthSerializer(SocialAuthSerializer):
+    """
+    Inherits from SocialAuthSerializer
+    """
+    def get_user_data(self, auth_token):
+        """
+        To parse and verify an ID Token issued by Google’s OAuth 2.0 authorization
+        verify_oauth2_token function is used
+        check ['iss'] key to make sure that the token is from google
+        """
+        try:
+            user_profile = id_token.verify_oauth2_token(auth_token, requests.Request())
+            
+            if user_profile['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+                raise ValueError('Wrong issuer.')
+
+            email = user_profile['email']
+            username = user_profile['given_name']
+
+            return register_social_user(email, username) 
+           
+        except ValueError:
+            return 'Please provide a valid token'
+
+
+class TwitterAuthSerializer(SocialAuthSerializer):
+    """
+    Inherits from SocialAuthSerializer
+    """
+    def get_user_data(self, auth_token):
+        """
+        Twitter works with 4 tokens, two of which are received by this function
+        This function creates an instance of twitter.api
+        and then api.VerifyCredentials() returns a user object
+        """
+
+        if len(auth_token.split(" ")) != 2:
+            return "Please provide two tokens"
+
+        access_token_key = auth_token.split(" ")[0]
+        access_token_secret = auth_token.split(" ")[1]
+
+        try:
+            api = twitter.Api(consumer_key = settings.TWITTER_CONSUMER_KEY,
+                                consumer_secret = settings.TWITTER_CONSUMER_SECRET,
+                                access_token_key = access_token_key,
+                                access_token_secret = access_token_secret)
+            user_profile = api.VerifyCredentials(include_email=True).__dict__
+
+            email = user_profile["email"]
+            username = user_profile["screen_name"]
+
+            return register_social_user(email, username)
+
+        except twitter.error.TwitterError:
+            return 'Please provide valid tokens'

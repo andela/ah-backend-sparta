@@ -21,6 +21,9 @@ gunicorn = "*"
 django-heroku = "*"
 pipenv-to-requirements = "*"
 django-rest-swagger = "*"
+facebook-sdk = "*"
+google-api-python-client = "*"
+python-twitter = "*"
 
 [requires]
 python_version = "3.6.5"
