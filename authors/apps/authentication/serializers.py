@@ -72,10 +72,18 @@ class RegistrationSerializer(serializers.ModelSerializer):
                 "Username should not contain spaces"
             )
 
+    def validate(self, attrs):
+
+        values = self.initial_data
+        keys = self.fields.keys()
+
+        for key in values.copy():
+            values.pop(key) if key not in keys else None
+
+        return values
 
     def create(self, validated_data):
         # Use the `create_user` method we wrote earlier to create a new user.
-        print('validated data', validated_data)
         return User.objects.create_user(**validated_data)
 
 

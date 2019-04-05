@@ -37,7 +37,6 @@ class TestUserRegistration(BaseTestCase):
         """
 
         response = self.client.post('/api/users/register/', no_login_credentialds_data, format='json')
-        print(response)
         self.assertIn(response.data["errors"]["email"][0], 'This field is required.')
         self.assertIn(response.data["errors"]["username"][0], 'This field is required.')
         self.assertIn(response.data["errors"]["password"][0], 'This field is required.')
@@ -50,7 +49,7 @@ class TestUserRegistration(BaseTestCase):
     #     """
     #     response = self.client.post('/api/users/register/', invalid_registration_data, format='json')
     #     self.assertEqual(response.data["errors"]["password"], "Please provide a password, because its a required field")
-
+    #
     # def test_register_a_user_with_same_email_address(self):
     #     """
     #     Method to test if posted registration user object contains same email
@@ -59,12 +58,12 @@ class TestUserRegistration(BaseTestCase):
     #     self.assertEqual(response.data["email"], 'testuser@gmail.com')
     #     self.assertEqual(response.data["username"], 'user')
     #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
+    #
     #     response1 = self.client.post('/api/users/register/', login_credentials_data, format='json')
     #     self.assertIn(response1.data["errors"]["email"],
     #                   'Provided email address already exists, please provide a different one')
     #     self.assertEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
-
+    #
     # def test_register_a_user_with_same_username(self):
     #     """
     #     Method to test if posted registration user object contains same username
@@ -73,12 +72,12 @@ class TestUserRegistration(BaseTestCase):
     #     self.assertEqual(response.data["email"], 'testuser@gmail.com')
     #     self.assertEqual(response.data["username"], 'user')
     #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
+    #
     #     response1 = self.client.post('/api/users/register/', login_same_username_different_email, format='json')
     #     self.assertIn(response1.data["errors"]["username"], 'Provided username already exist, please provide a '
     #                                                        'different one')
     #     self.assertEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
-
+    #
     # def test_user_registered_with_empty_string_username(self):
     #     """
     #     Method to test if username is an empty string
@@ -86,7 +85,7 @@ class TestUserRegistration(BaseTestCase):
     #     response = self.client.post('/api/users/register/', empty_string_username, format='json')
     #     self.assertIn(response.data["errors"]["username"], 'Please provide a username , because it is required field')
     #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
+    #
     # def test_user_registered_with_empty_email_string(self):
     #     """
     #     Method to test if username is an empty string
@@ -94,7 +93,7 @@ class TestUserRegistration(BaseTestCase):
     #     response = self.client.post('/api/users/register/', empty_string_email, format='json')
     #     self.assertIn(response.data["errors"]["email"], 'Please provide an email address, because it is required field')
     #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
+    #
     # def test_user_registered_with_empty_password_string(self):
     #     """
     #     Method to test if username is an empty string
@@ -102,7 +101,7 @@ class TestUserRegistration(BaseTestCase):
     #     response = self.client.post('/api/users/register/', empty_string_password, format='json')
     #     self.assertIn(response.data["errors"]["password"], 'Please provide a password, because its a required field')
     #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
+    #
     # def test_user_registered_with_an_invalid_email(self):
     #     """
     #     Method to test if email is an invalid email
@@ -110,7 +109,7 @@ class TestUserRegistration(BaseTestCase):
     #     response = self.client.post('/api/users/register/', invalid_email_data, format='json')
     #     self.assertIn(response.data["errors"]["email"], 'Please provide a valid email address')
     #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
+    #
     # def test_user_registered_with_space_between_username_characters(self):
     #     """
     #     Method to test if username contains spaces
@@ -118,7 +117,7 @@ class TestUserRegistration(BaseTestCase):
     #     response = self.client.post('/api/users/register/', username_containing_spaces, format='json')
     #     self.assertIn(response.data["errors"]["username"], 'Username should not contain spaces')
     #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
+    #
     # def test_user_registered_with_space_between_password_characters(self):
     #     """
     #     Method to test if password contains space between characters
@@ -126,7 +125,7 @@ class TestUserRegistration(BaseTestCase):
     #     response = self.client.post('/api/users/register/', password_containing_spaces, format='json')
     #     self.assertIn(response.data["errors"]["password"], 'Password should not contain spaces')
     #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
+    #
     # def test_user_login_successfully_with_valid_data(self):
     #     """
     #     Method to test if user successfully logs in using valid credentials
@@ -136,7 +135,7 @@ class TestUserRegistration(BaseTestCase):
     #     self.assertEqual(response.data["email"], 'testuser@gmail.com')
     #     self.assertEqual(response.data["username"], 'user')
     #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-
+    #
     # def test_user_logged_in__with_invalid_data(self):
     #     """
     #     Method to test if user  logs in using invalid credentials
@@ -145,7 +144,7 @@ class TestUserRegistration(BaseTestCase):
     #     response = self.client.post('/api/users/login/', invalid_login_data, format='json')
     #     self.assertIn(response.data["errors"]["error"][0], 'A user with this email and password was not found.')
     #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
+    #
     # def test_user_log_in_credentials_miss_email(self):
     #     """
     #     Method to test if email is not added in the login required credentials
@@ -154,7 +153,7 @@ class TestUserRegistration(BaseTestCase):
     #     response = self.client.post('/api/users/login/', login_data_miss_email, format='json')
     #     self.assertIn(response.data["errors"]["email"][0], 'This field is required.')
     #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
+    #
     # def test_user_log_in_credentials_miss_password(self):
     #     """
     #     Method to test if password is not added in the login required credentials
@@ -163,7 +162,7 @@ class TestUserRegistration(BaseTestCase):
     #     response = self.client.post('/api/users/login/', login_data_miss_password, format='json')
     #     self.assertIn(response.data["errors"]["password"][0], 'This field is required.')
     #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
+    #
     # def test_user_log_in_credentials_miss_password_and_email(self):
     #     """
     #     Method to test if password is not added in the login required credentials
@@ -173,7 +172,7 @@ class TestUserRegistration(BaseTestCase):
     #     self.assertIn(response.data["errors"]["password"][0], 'This field is required.')
     #     self.assertIn(response.data["errors"]["email"][0], 'This field is required.')
     #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
+    #
     # def test_get_current_user_jwt(self):
     #     """
     #     Get current user from JWT
@@ -183,7 +182,7 @@ class TestUserRegistration(BaseTestCase):
     #     self.assertEqual(response2.data["email"], test_user_data.get('user').get('email'))
     #     self.assertEqual(response2.data["username"], test_user_data.get('user').get('username'))
     #     self.assertEqual(response2.status_code, status.HTTP_200_OK)
-
+    #
     # def test_change_password_user_jwt_authenticated(self):
     #     """
     #     change password of authenticated user
@@ -194,17 +193,17 @@ class TestUserRegistration(BaseTestCase):
     #     self.assertEqual(response2.data["email"], test_user_data.get('user').get('email'))
     #     self.assertEqual(response2.data["username"], test_user_data.get('user').get('username'))
     #     self.assertEqual(response2.status_code, status.HTTP_200_OK)
-
+    #
     # def test_change_password_user_jwt_authenticated_invalid_token(self):
     #     """
     #     change password of authenticated user
     #     """
-       
+    #
     #     invalid_token = 'Bearer hgfgsdyuertgsdtyshjgsdjusdhghjsdyj'
     #     self.client.credentials(HTTP_AUTHORIZATION=invalid_token)
-
+    #
     #     response2 = self.client.put('/api/user/', auth_change_password, format='json')
     #     self.assertEqual(response2.data["detail"], 'Invalid authentication. Could not decode token.')
-
-    
-
+    #
+    #
+    #
