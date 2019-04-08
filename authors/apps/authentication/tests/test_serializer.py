@@ -57,6 +57,39 @@ class TestLoginSerializer(BaseTestCase):
 
         self.assertEqual(e.exception.args[0], 'This user has been deactivated.')
 
+    @patch('authors.apps.authentication.serializers.authenticate')
+    def test_user_is_not_verified(self, mock_user):
+        """
+        Method to test if user is  not verified
+        """
+        class MockUser:
+            is_active = True
+            is_verified = False
+        mock_user.return_value = MockUser
+        
+        user_password_and_email = {
+            "email":"user@gmail.com",
+            "password":"user@1234"
+        }
+       
+        class MockFilter:
+            is_verified = False 
+
+            @classmethod
+            def first(cls):
+                return MockUser
+
+            def __call__(self,  *args, **kwargs):
+                return self
+
+
+        with patch('authors.apps.authentication.serializers.User.objects.filter', new_callable=MockFilter),\
+            self.assertRaises(ValidationError) as e:
+        
+            LoginSerializer().validate(user_password_and_email)
+
+        self.assertEqual(e.exception.args[0], 'This user has not been verified.')
+
     def test_update_user_data(self):
         """
         Method to test update user data

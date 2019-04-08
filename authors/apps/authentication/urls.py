@@ -1,7 +1,9 @@
 from django.urls import path
 
 from .views import (
-    LoginAPIView, RegistrationAPIView, UserRetrieveUpdateAPIView, FacebookAuthApiView, GoogleAuthApiView, TwitterAuthApiView
+    LoginAPIView, RegistrationAPIView, 
+    UserRetrieveUpdateAPIView, FacebookAuthApiView, 
+    GoogleAuthApiView, TwitterAuthApiView, VerifyUserAPIView
 )
 
 urlpatterns = [
@@ -10,5 +12,6 @@ urlpatterns = [
     path('users/login/', LoginAPIView.as_view(), name='login'),
     path('users/login/facebook', FacebookAuthApiView.as_view(), name='facebook'),
     path('users/login/google', GoogleAuthApiView.as_view(), name='google'),
-    path('users/login/twitter', TwitterAuthApiView.as_view(), name='twitter')
+    path('users/login/twitter', TwitterAuthApiView.as_view(), name='twitter'),
+    path('users/verify/', VerifyUserAPIView.as_view(), name='verify-user')
 ]

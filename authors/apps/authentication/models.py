@@ -84,6 +84,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     # This will differentiate social auth users from the others that
     # that registered using the app
     registration_platform = models.CharField(max_length=50, default='app')
+    # The `is_verified` flag is used to determine which user has verified their account.
+    is_verified = models.BooleanField(default=False)
 
     # More fields required by Django when specifying a custom user model.
 
