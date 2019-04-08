@@ -17,7 +17,10 @@ from .test_data import (
     login_data_miss_password,
     empty_login_data_object,
     auth_change_password,
-    test_user_data_password_change
+    test_user_data_password_change,
+    password_contain_spaces,
+    username_contain_spaces,
+    username_contains_special_characters
 )
 from .test_base import BaseTestCase
 
@@ -39,6 +42,32 @@ class TestUserRegistration(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
+    def test_password_contains_spaces(self):
+        """
+        Method to test if password contains spaces
+        """
+        response = self.client.post('/api/users/register/', password_contain_spaces, format='json')
+        self.assertIn(response.data["errors"]["password"][0], 'Password should not contain spaces')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_if_username_contains_spaces(self):
+        
+        """
+        Method to test if username contains spaces
+        """
+        response = self.client.post('/api/users/register/', username_contain_spaces, format='json')
+        self.assertIn(response.data["errors"]["username"][0], 'Username should not contain spaces')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_if_username_contains_special_charcters(self):
+        """
+        Method to test if username contains spaces
+        """
+        response = self.client.post('/api/users/register/', username_contains_special_characters, format='json')
+        self.assertIn(response.data["errors"]["username"][0], 'should not contain special characters @_!#$%^&*()<>?/\\|}{~:')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
     def test_register_a_user_with_data(self):
         """
         Method to test if posted registration user object contains data
@@ -49,8 +78,8 @@ class TestUserRegistration(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         response1 = self.client.post('/api/users/register/', login_credentials_data, format='json')
-        self.assertIn(response1.data["errors"]["email"][0], 'user with this email already exists.')
-        self.assertIn(response1.data["errors"]["username"][0], 'user with this username already exists.')
+        self.assertEqual(response1.data["errors"]["email"][0], 'Provided email address already exists, please provide a different one')
+        self.assertEqual(response1.data["errors"]["username"][0], 'Provided username already exist, please provide a different one')
         self.assertEqual(response1.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_user_registered_with_empty_string_username(self):
@@ -161,14 +190,10 @@ class TestUserRegistration(BaseTestCase):
         """
         change password of authenticated user
         """
-        # self.client.post('/api/users/register/', login_credentials_data, format='json')
-        # response1 = self.client.post('/api/users/login/', login_data, format='json')
-        # print(response1.data["token"])
-        # resp_token = response1.data["token"] + str(1)
+
         invalid_token = 'Bearer hgfgsdyuertgsdtyshjgsdjusdhghjsdyj'
 
-        # Token = self.token
-        # Token = Token + str(1)
+       
         self.client.credentials(HTTP_AUTHORIZATION = invalid_token)
 
         response2 = self.client.put('/api/user/', auth_change_password,format='json')

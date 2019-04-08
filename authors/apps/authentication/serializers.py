@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from django.conf import settings
+import re
 
 from rest_framework import serializers
 
@@ -21,11 +22,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
         min_length=8,
         write_only=True
     )
+    email = serializers.EmailField()
+    username = serializers.CharField()
 
     # The client should not be able to send a token along with a registration
     # request. Making `token` read-only handles that for us.
 
-    #making token read-only
+    # making token read-only
     token = serializers.CharField(max_length=255, read_only=True)
 
     class Meta:
@@ -33,6 +36,57 @@ class RegistrationSerializer(serializers.ModelSerializer):
         # List all of the fields that could possibly be included in a request
         # or response, including fields specified explicitly above.
         fields = ['email', 'username', 'password', 'token']
+
+    def validate_password(self, password):
+        """
+        Method to validate user posted password
+        """
+        if len(password.split()) > 1:
+            raise serializers.ValidationError(
+                "Password should not contain spaces"
+            )
+        elif not re.search(r"[0-9]", password) or not re.search(r"[A-Z]", password) or not re.search(
+            r"[@_!#$%^&*()<>?/\|}{~:]", password):
+            raise serializers.ValidationError(
+                "Invalid Password format,It should have an Uppercase letter,digit and special character"
+            )
+       
+
+    def validate_email(self, email):
+        """
+        Method to validate the email input by a new user signing up
+        It ensures that the email being used for signing up was not already used by another user.
+        """
+
+        check_email = User.objects.filter(email=email)
+        if check_email.exists():
+            raise serializers.ValidationError("Provided email address already exists, please provide a different one")
+        
+
+    def validate_username(self, username):
+        """
+        Method to validate that the username is not owned by another user
+        """
+        regex = re.compile(r'[@_!#$%^&*()<>?/\|}{~:]')
+        check_username = User.objects.filter(username=username)
+        if check_username.exists():
+            raise serializers.ValidationError("Provided username already exist, please provide a different one")
+        elif regex.search(username):
+            raise serializers.ValidationError("should not contain special characters @_!#$%^&*()<>?/\|}{~:")
+        elif  len(username.split()) > 1:
+            raise serializers.ValidationError(
+                "Username should not contain spaces"
+            )
+
+    def validate(self, attrs):
+
+        values = self.initial_data
+        keys = self.fields.keys()
+
+        for key in values.copy():
+            values.pop(key) if key not in keys else None
+
+        return values
 
     def create(self, validated_data):
         # Use the `create_user` method we wrote earlier to create a new user.

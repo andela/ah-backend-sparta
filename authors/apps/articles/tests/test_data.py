@@ -20,7 +20,7 @@ test_user_data =  {
             "user": {
                 "username": "testuser",
                 "email": "testuser2@gmail.com",
-                "password": "user@12345"
+                "password": "User@12345"
             }
         }
 
@@ -28,6 +28,6 @@ test_user2_data =  {
             "user": {
                 "username": "testuser2",
                 "email": "testuseranother@gmail.com",
-                "password": "useranother@12345"
+                "password": "Useranother@12345"
             }
         }
