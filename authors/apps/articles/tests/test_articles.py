@@ -61,6 +61,7 @@ class TestArticle(test_base.BaseTestCase):
         user2_token = self.create_user(test_user2_data)
         response = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user1_token, format='json')
         resp = self.client.put(f'/api/articles/{response.data["article"]["id"]}', article_data, HTTP_AUTHORIZATION=user2_token, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_str_model(self):
         user1_token = self.create_user(test_user_data)

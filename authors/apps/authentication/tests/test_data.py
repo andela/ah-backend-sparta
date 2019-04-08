@@ -1,17 +1,47 @@
 no_login_credentialds_data = {}
 
+password_contain_spaces = {
+
+	 "user": {
+        "username": "patrick ",
+        "email": "patrick@gmail.com",
+        "password":"Daniekg     kgkgk4@gk"
+    
+   }
+}
+
+username_contain_spaces = {
+
+	 "user": {
+        "username": "patr     ick ",
+        "email": "patrick@gmail.com",
+        "password":"Daniekgkgkgk4@gk"
+    
+   }
+}
+
+username_contains_special_characters = {
+
+	 "user": {
+        "username": "patr@@@ick",
+        "email": "patrick@gmail.com",
+        "password":"Daniekgkgkgk4@gk"
+    
+   }
+}
+
 login_credentials_data =  {
             "user": {
                 "username": "user",
                 "email": "testuser@gmail.com",
-                "password": "user@12345"
+                "password": "User@12345"
             }
-        }
+    }
 test_user_data =  {
             "user": {
                 "username": "testuser",
                 "email": "testuser2@gmail.com",
-                "password": "user@12345"
+                "password": "User@12345"
             }
         }
 test_user_data_password_change =  {
@@ -52,7 +82,7 @@ invalid_email_data = {
 login_data = {
            "user": {
                  "email":"testuser@gmail.com",
-    			 "password":"user@12345"
+    			 "password":"User@12345"
          }
         }
 

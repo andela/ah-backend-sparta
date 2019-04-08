@@ -35,4 +35,3 @@ class BaseTestCase(APITestCase):
         response1 = self.client.post('/api/users/login/', user_data, format='json')
 
         return f'Bearer {response1.data["token"]}'
-            
