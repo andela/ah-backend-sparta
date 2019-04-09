@@ -1,3 +1,4 @@
+from unittest import mock
 from django.test import TestCase
 from authors.apps.authentication.tests import (
     test_base, test_data
@@ -10,6 +11,7 @@ from authors.apps.articles.tests.test_data import (
     article_data_no_body)
 from rest_framework import status
 from rest_framework.test import APITestCase
+from authors.apps.articles.models import Article
 
 class TestArticle(test_base.BaseTestCase):
 
@@ -72,7 +74,8 @@ class TestArticle(test_base.BaseTestCase):
         self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_str_model(self):
-        user1_token = self.create_user(test_user_data)
-        response = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user1_token, format='json')
-        self.assertEqual(str(response.data["article"]["title"]), article_data["title"])
+        mock_instance = mock.Mock(spec=Article)
+        mock_instance.title = "hello slug"
+        mock_instance.description = "Short description about slug"
+        self.assertEqual(Article.__str__(mock_instance), "hello slug")
         
