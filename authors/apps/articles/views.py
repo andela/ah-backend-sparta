@@ -8,6 +8,7 @@ from .permissions import IsOwnerOrReadOnly
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
                                         IsAuthenticated)
 from .serializers import ArticleSerializer 
+from .pagination import ArticlePageNumberPagination
 
 class ListCreateArticle(generics.ListCreateAPIView):
     """
@@ -18,6 +19,7 @@ class ListCreateArticle(generics.ListCreateAPIView):
 
     queryset = Article.objects.all()
     serializer_class = serializers.ArticleSerializer
+    pagination_class = ArticlePageNumberPagination
 
     def create(self,request):
         article=request.data
