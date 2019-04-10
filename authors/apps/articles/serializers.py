@@ -8,3 +8,13 @@ class ArticleSerializer(serializers.ModelSerializer):
         fields = '__all__'
         model = models.Article
         read_only_fields = ['author','slug']
+
+class ArticleLikeDislikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ["user", "article", "likes", "createdAt"]
+        model = models.ArticleLikeDislike
+        extra_kwargs = {
+            'user': {'write_only': True},
+            'article': {'write_only': True},
+        }
+        unique_together=["user", "likes"]
