@@ -1,6 +1,8 @@
 from rest_framework import permissions
 from .models import Article
 from authors.apps.profiles.models import Profile
+
+
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
     Object-level permission to only allow owners of an object to edit it.
@@ -14,7 +16,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
             return True
 
         # Instance must have an attribute named `owner`.
-        profile=Profile.objects.filter(user=request.user).first()
+        profile = Profile.objects.filter(user=request.user).first()
         user = Article.objects.filter(author=profile).first()
         return obj.author == user
-        
+
