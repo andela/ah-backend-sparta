@@ -3,15 +3,20 @@ from unittest import mock
 from rest_framework import status
 
 from authors.apps.articles.models import Article
-from authors.apps.articles.tests.test_data import (
-    article_data,
-    test_user_data,
-    test_user2_data,
-    article_data_no_body)
 from authors.apps.authentication.tests import (
     test_base, test_data
 )
-
+from authors.apps.articles.tests.test_data import (
+    article_data, 
+    test_user_data, 
+    test_user2_data, 
+    changed_article_data,
+    article_data_no_body,
+    like_data, dislike_data
+    )
+from rest_framework import status
+from rest_framework.test import APITestCase
+from authors.apps.articles.models import Article
 
 class TestArticle(test_base.BaseTestCase):
 
@@ -32,7 +37,6 @@ class TestArticle(test_base.BaseTestCase):
         self.assertEqual(resp.data["article"]["title"], article_data.get("title"))
         self.assertEqual(resp.data["article"]["description"], article_data.get("description"))
         self.assertEqual(resp.data["article"]["body"], article_data.get("body"))
-        self.assertEqual(resp.data["article"]['id'], int(1))
         self.assertEqual(resp.data["article"]["slug"], "hello-slug-first")
         self.assertEqual(resp.data["article"]["author"]["username"], "testuser")
 
@@ -70,8 +74,7 @@ class TestArticle(test_base.BaseTestCase):
         user1_token = self.create_user(test_user_data)
         user2_token = self.create_user(test_user2_data)
         response = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user1_token, format='json')
-        resp = self.client.put(f'/api/articles/{response.data["article"]["slug"]}', article_data,
-                               HTTP_AUTHORIZATION=user2_token, format='json')
+        resp = self.client.put(f'/api/articles/{response.data["article"]["slug"]}', article_data, HTTP_AUTHORIZATION=user2_token, format='json')
         self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_str_model(self):
@@ -79,3 +82,44 @@ class TestArticle(test_base.BaseTestCase):
         mock_instance.title = "hello slug"
         mock_instance.description = "Short description about slug"
         self.assertEqual(Article.__str__(mock_instance), "hello slug")
+        
+    def test_like_an_article(self):
+        user1_token = self.create_user(test_user_data)
+        response = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user1_token, format='json')
+        liked_article_id = response.data["article"]["slug"]
+        user1_like_resp = self.client.post(f'/api/articles/{liked_article_id}/like', like_data,
+                                            HTTP_AUTHORIZATION=user1_token, format='json')
+        self.assertEqual(like_data["likes"], user1_like_resp.data["details"]["likes"])
+        user1_like_again = self.client.post(f'/api/articles/{liked_article_id}/like', like_data,
+                                            HTTP_AUTHORIZATION=user1_token, format='json')
+        self.assertEqual({'msg': 'You have already liked this article'}, user1_like_again.data)  
+
+    def test_dislike_an_article(self):
+        user1_token = self.create_user(test_user_data) 
+        response = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user1_token, format='json')
+        user1_dislike_resp = self.client.post(f'/api/articles/{response.data["article"]["slug"]}/like', dislike_data,
+                                            HTTP_AUTHORIZATION=user1_token, format='json') 
+        self.assertEqual(dislike_data["likes"], user1_dislike_resp.data["details"]["likes"])
+        user1_dislike_again = self.client.post(f'/api/articles/{response.data["article"]["slug"]}/like', dislike_data,
+                                            HTTP_AUTHORIZATION=user1_token, format='json')   
+        self.assertEqual({'msg': 'You have already disliked this article'}, user1_dislike_again.data)    
+
+    def test_another_user_can_like(self):
+        user1_token = self.create_user(test_user_data)
+        user2_token = self.create_user(test_user2_data)
+        response = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user1_token, format='json')
+        user1_like_resp = self.client.post(f'/api/articles/{response.data["article"]["slug"]}/like', like_data,
+                                            HTTP_AUTHORIZATION=user1_token, format='json')
+        user2_like_resp = self.client.post(f'/api/articles/{response.data["article"]["slug"]}/like', like_data,
+                                            HTTP_AUTHORIZATION=user2_token, format='json')
+        get_articles = self.client.get('/api/articles/')
+        self.assertEqual(2, get_articles.data["results"][0]["likes"])
+
+    def test_like_then_dislike(self):
+        user1_token = self.create_user(test_user_data)
+        response = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user1_token, format='json')
+        user1_like_resp = self.client.post(f'/api/articles/{response.data["article"]["slug"]}/like', like_data,
+                                            HTTP_AUTHORIZATION=user1_token, format='json')
+        user1_dislike_resp = self.client.post(f'/api/articles/{response.data["article"]["slug"]}/like', dislike_data,
+                                            HTTP_AUTHORIZATION=user1_token, format='json')
+        self.assertEqual(dislike_data["likes"], user1_dislike_resp.data["details"]["likes"]) 

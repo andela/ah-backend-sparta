@@ -31,3 +31,11 @@ test_user2_data =  {
                 "password": "Useranother@12345"
             }
         }
+
+like_data = {
+    "likes":True
+    }
+    
+dislike_data = {
+    "likes": False
+    }

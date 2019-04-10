@@ -1,4 +1,10 @@
-from rest_framework import generics, status
+from django.shortcuts import render
+from rest_framework import generics ,status
+from .models import Article, ArticleLikeDislike
+from authors.apps.profiles.models import Profile
+from . import serializers
+from rest_framework.response import Response
+from .permissions import IsOwnerOrReadOnly
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
                                         IsAuthenticated)
 from rest_framework.response import Response
@@ -41,7 +47,7 @@ class RetrieveUpdateDestroyArticle(generics.RetrieveUpdateDestroyAPIView):
     access to edit/delete the article. An authenticated
     user can get article by Id.
     """
-    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly)
+    permission_classes = (IsOwnerOrReadOnly,)
     queryset = Article.objects.all()
     serializer_class = serializers.ArticleSerializer
     lookup_field = 'slug'
@@ -152,3 +158,47 @@ class DeleteUpdateCommentAPIView(generics.RetrieveUpdateDestroyAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class ArticleLikeDislikeView(generics.GenericAPIView):
+    """
+    Article should be liked or disliked and toggle
+    """
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    serializer_class = serializers.ArticleLikeDislikeSerializer
+
+    def post(self, request, slug):
+        article = Article.objects.filter(slug=slug).first()
+        likes = request.data["likes"]
+        liked_article = ArticleLikeDislike.objects.filter(article_id=article.id, user_id=request.user.id, likes=likes).first()
+        
+        if liked_article is not None:
+            msg = 'You have already liked this article' if likes else 'You have already disliked this article'
+            return Response(dict(msg=msg), status=status.HTTP_200_OK)
+
+        liked_article = ArticleLikeDislike.objects.filter(article_id=article.id, user_id=request.user.id).first()
+      
+        serializer_data = self.serializer_class(data={
+            "user": request.user.id,
+            "article": article.id,
+            "likes": likes
+        })
+
+        serializer_data.is_valid(raise_exception=True)
+
+        if not liked_article:
+            serializer_data.save()
+        else:
+            liked_article.likes = likes
+            liked_article.save()
+
+        data = {
+            "article": article.title,
+            "username": request.user.username,
+            "details": serializer_data.data
+        }
+       
+        likes = ArticleLikeDislike.objects.filter(article_id=article.id, likes=True)
+        dislikes = ArticleLikeDislike.objects.filter(article_id=article.id, likes=False)
+        Article.objects.filter(slug=slug).update(likes=likes.count() , dislikes=dislikes.count())
+
+        return Response(data, status=status.HTTP_200_OK)
