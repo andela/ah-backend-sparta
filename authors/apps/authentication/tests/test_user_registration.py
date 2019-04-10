@@ -1,6 +1,7 @@
 """
 Module to test functionality to register a user
 """
+from unittest.mock import patch
 from rest_framework import status
 from rest_framework.test import APITestCase
 from .test_data import (
@@ -34,7 +35,7 @@ class TestUserRegistration(BaseTestCase):
         """
         Method to test if posted user registration user object contains  no data
         """
-        
+
         response = self.client.post('/api/users/register/', no_login_credentialds_data, format='json')
         self.assertIn(response.data["errors"]["email"][0], 'This field is required.')
         self.assertIn(response.data["errors"]["username"][0], 'This field is required.')
@@ -118,7 +119,9 @@ class TestUserRegistration(BaseTestCase):
         """
         Method to test if user successfully logs in using valid credentials
         """
-        self.client.post('/api/users/register/', login_credentials_data, format='json')
+        response = self.client.post('/api/users/register/', login_credentials_data, format='json')
+        self.client.get('/api/users/verify/'+"?token="+ response.data['token'])
+
         response = self.client.post('/api/users/login/', login_data, format='json')
         self.assertEqual(response.data["email"], 'testuser@gmail.com')
         self.assertEqual(response.data["username"], 'user')
@@ -129,7 +132,10 @@ class TestUserRegistration(BaseTestCase):
         Method to test if user  logs in using invalid credentials
         """
         self.client.post('/api/users/', login_credentials_data, format='json')
-        response = self.client.post('/api/users/login/', invalid_login_data, format='json')
+        response = self.client.post(
+            '/api/users/login/', 
+            invalid_login_data, format='json'
+        )
         self.assertIn(response.data["errors"]["error"][0], 'A user with this email and password was not found.')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -179,14 +185,16 @@ class TestUserRegistration(BaseTestCase):
         # self.client.credentials(HTTP_AUTHORIZATION = self.token)
         # #print(self.token)
         user_token = self.create_user(test_user_data)
-        response2 = self.client.put('/api/user/', test_user_data_password_change,
-         HTTP_AUTHORIZATION=user_token,format='json')
+        response2 = self.client.put(
+            '/api/user/', 
+            test_user_data_password_change,
+            HTTP_AUTHORIZATION=user_token,format='json'
+        )
         self.assertEqual(response2.data["email"], test_user_data.get('user').get('email'))
         self.assertEqual(response2.data["username"], test_user_data.get('user').get('username'))
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
     
     def test_change_password_user_jwt_authenticated_invalid_token(self):
-
         """
         change password of authenticated user
         """
@@ -199,7 +207,54 @@ class TestUserRegistration(BaseTestCase):
         response2 = self.client.put('/api/user/', auth_change_password,format='json')
         self.assertEqual(response2.data["detail"], 'Invalid authentication. Could not decode token.')
 
+        response2 = self.client.put('/api/user/', auth_change_password,format='json')
+        self.assertEqual(response2.data["detail"], 'Invalid authentication. Could not decode token.')
 
+    def test_verify_user(self):
+        """ tests if user can be verified on registration with token"""
+        res = self.client.post('/api/users/register/', test_user_data, format='json')
+        response = self.client.get(
+            '/api/users/verify/'+"?token="+res.data['token']
+        )
+        self.assertEqual(
+            response.data['Message'], 
+            'Account successfully verified, your free to  now login'
+        )
+        self.assertEqual(
+            response.status_code, 
+            status.HTTP_200_OK
+        )
 
+    def test_cannot_verify_user_with_invalid_token(self):
+        """ tests if user cannot be verified with invalid token token"""
+
+        class MockUserToken:
+
+            @classmethod
+            def decode(cls, token, secret_key):
+                return {
+                    'id': 1,
+                    'exp': 1333
+                }
+
+        with patch('authors.apps.authentication.views.jwt', new_callable=MockUserToken):
+            response = self.client.get('/api/users/verify/', format='json')
+            self.assertEqual(response.data['Message'], 'Something went wrong')
+
+    def test_email_sent_on_registration(self):
+            """ """
+
+            class MockUserToken:
+
+                @classmethod
+                def decode(cls, token, secret_key):
+                    return {
+                        'id': 1,
+                        'exp': 1333
+                    }
+
+            with patch('authors.apps.authentication.views.jwt', new_callable=MockUserToken):
+                response = self.client.get('/api/users/verify/', format='json')
+                self.assertEqual(response.data['Message'], 'Something went wrong')        
  
 

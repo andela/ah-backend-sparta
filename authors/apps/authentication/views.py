@@ -1,13 +1,18 @@
-from rest_framework import status
+import os
+import jwt
+from rest_framework import status, generics
 from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView, ListCreateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from django.core.mail import EmailMessage
+from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
 from .renderers import UserJSONRenderer
 from .serializers import (
 LoginSerializer, RegistrationSerializer, UserSerializer, FacebookAuthSerializer, GoogleAuthSerializer, TwitterAuthSerializer
 )
+from .models import User
 
 
 class RegistrationAPIView(GenericAPIView):
@@ -24,9 +29,18 @@ class RegistrationAPIView(GenericAPIView):
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        user_data = serializer.data
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+        url = f"http://{get_current_site(request).domain}/api/users/verify?token={user_data.get('token')}"
+    
+        email = EmailMessage(
+            subject='Authors Haven:Email-verification',
+            body='Click here to verify your account {}'.format(url),
+            from_email='authors.haven16@gmail.com',
+            to=[user_data['email']],
+        )
+        email.send(fail_silently=False)
+        return Response(user_data, status=status.HTTP_201_CREATED)
 
 class LoginAPIView(GenericAPIView):
     permission_classes = (AllowAny,)
@@ -94,3 +108,26 @@ class GoogleAuthApiView(SocialAuthApiView):
     
 class TwitterAuthApiView(SocialAuthApiView):
     serializer_class = TwitterAuthSerializer
+    
+class VerifyUserAPIView(generics.GenericAPIView):
+    permission_classes = (AllowAny, )
+
+    def get(self, request, format=None):
+        token = request.query_params.get('token')
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY)
+            id = payload.get('id')
+            user = User.objects.filter(id=id).first()
+            user.is_verified=True
+            user.save()
+            return Response(
+                {
+                    'Message': 'Account successfully verified, your free to  now login'
+                },
+                status=status.HTTP_200_OK)
+
+        except Exception as identifier:
+            return Response({"Message":"Something went wrong"})
+
+       
+
