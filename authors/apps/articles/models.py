@@ -3,6 +3,7 @@ from django.utils import timezone
 from authors.apps.authentication.models import User
 from django.template.defaultfilters import slugify
 from authors.apps.profiles.models import Profile
+from django.contrib.postgres import fields
 
 class Article(models.Model):
     title = models.CharField(max_length = 100)
@@ -13,6 +14,7 @@ class Article(models.Model):
     updatedAt = models.DateTimeField(auto_now = True)
     author = models.ForeignKey(Profile, on_delete=models.CASCADE,
      related_name='author')
+    tags = fields.ArrayField(models.CharField(max_length=100), blank=True, default=list)
 
     class Meta:
         get_latest_by = ['id']
