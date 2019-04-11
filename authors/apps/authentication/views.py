@@ -1,5 +1,7 @@
 import os
 import jwt
+from django.contrib.sites.shortcuts import get_current_site
+from django.shortcuts import reverse
 from rest_framework import status, generics
 from rest_framework.generics import RetrieveUpdateAPIView, GenericAPIView, ListCreateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -10,12 +12,16 @@ from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from .renderers import UserJSONRenderer
 from .serializers import (
-LoginSerializer, RegistrationSerializer, UserSerializer, FacebookAuthSerializer, GoogleAuthSerializer, TwitterAuthSerializer
+LoginSerializer, RegistrationSerializer, UserSerializer, FacebookAuthSerializer, GoogleAuthSerializer, TwitterAuthSerializer,
+ResetPasswordSerializer, ConfirmPasswordSerializer
 )
 from .models import User
 from authors.apps.articles.permissions import IsOwnerOrReadOnly
 from authors.apps.articles.models import Article
 from authors.apps.articles import serializers
+from authors import settings
+from authors.settings import SECRET_KEY
+
 
 class RegistrationAPIView(GenericAPIView):
     # Allow any user (authenticated or not) to hit this endpoint.
@@ -33,7 +39,7 @@ class RegistrationAPIView(GenericAPIView):
         serializer.save()
         user_data = serializer.data
 
-        url = f"http://{get_current_site(request).domain}/api/users/verify?token={user_data.get('token')}"
+        url = f"http://{get_current_site(request).domain}/api/users/verify/?token={user_data.get('token')}"
     
         email = EmailMessage(
             subject='Authors Haven:Email-verification',
@@ -147,3 +153,57 @@ class FavoritesList(generics.ListAPIView):
         serializer = self.serializer_class(favorite_articles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
   
+class PasswordResetView(GenericAPIView):
+    """ Allow users to receive a password reset link intheir emails"""
+    
+    permission_classes = (AllowAny,)
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = ResetPasswordSerializer
+
+    def post(self, request):
+        user_email = request.data.get('email')
+        user = User.objects.filter(email=user_email).first()
+        if user:
+            token = user._generate_jwt_token()
+            url = get_current_site(request).domain + reverse('password-change',kwargs={'token':token})
+            send_email = EmailMessage(
+                subject='Authors Haven:Password Reset',
+                body='Click here to reset your password http://{}'.format(url),
+                from_email= settings.EMAIL_HOST_USER,
+                to=[user.email]
+                )
+            send_email.send(fail_silently=False)
+            return Response({'message':'Password reset link has been sent to your Email'},
+            status=status.HTTP_200_OK)
+            
+        return Response({'message':'Email does not exist'},
+        status=status.HTTP_400_BAD_REQUEST)
+
+class PasswordChangeView(GenericAPIView):
+
+    permission_classes = (AllowAny,)
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = ConfirmPasswordSerializer
+
+    def put(self, request, *args, **kwargs):
+        token = kwargs.pop('token')
+        user = jwt.decode(token,SECRET_KEY)
+
+        user_data = User.objects.get(pk=user['id'])
+        data = request.data.get('user', {})
+        
+        serializer = self.serializer_class(user_data, data=data)
+        serializer.is_valid(raise_exception=True)
+        if data.get('password') == data.get('confirm_password'):
+
+            user_data.set_password(data['password'])
+            user_data.save()
+            return Response(
+                            {"message": "Password has been reset"},
+                            status=status.HTTP_200_OK
+                            )
+
+        return Response(
+            {"error": "Passwords do not match"},
+            status=status.HTTP_400_BAD_REQUEST
+            )

@@ -153,3 +153,24 @@ social_reg_data = {
     'email': 'test@testmail.com',
     'username': 'testname'
 }
+reset_data = {
+	"email": "testuser2@gmail.com",
+}
+wrong_reset_email ={
+    "email": "test_user2@gmail.com"
+}
+
+password_reset_data = {
+	"user":{
+		"password":"asiimweD1",
+		"confirm_password":"asiimweD1"
+		
+	}
+}
+unmatched_password = {
+    "user":{
+		"password":"asiimweD1",
+		"confirm_password":"asiimeeeeee"
+		
+	}
+}
