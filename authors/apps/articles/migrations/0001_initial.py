@@ -25,10 +25,22 @@ class Migration(migrations.Migration):
                 ('createdAt', models.DateTimeField(auto_now_add=True)),
                 ('updatedAt', models.DateTimeField(auto_now=True)),
                 ('tags', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), blank=True, default=list, size=None)),
+                ('likes', models.IntegerField(default=0)),
+                ('dislikes', models.IntegerField(default=0)),
                 ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='author', to='profiles.Profile')),
             ],
             options={
                 'get_latest_by': ['id'],
             },
+        ),
+        migrations.CreateModel(
+            name='ArticleLikeDislike',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('likes', models.BooleanField(default=False, null=True)),
+                ('createdAt', models.DateTimeField(auto_now_add=True)),
+                ('article', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='articles.Article')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='profiles.Profile')),
+            ],
         ),
     ]

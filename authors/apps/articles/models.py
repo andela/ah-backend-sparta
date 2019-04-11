@@ -16,6 +16,10 @@ class Article(models.Model):
      related_name='author')
     tags = fields.ArrayField(models.CharField(max_length=100), blank=True, default=list)
 
+    #like-dislike
+    likes = models.IntegerField(default=0)
+    dislikes = models.IntegerField(default=0)
+
     class Meta:
         get_latest_by = ['id']
 
@@ -32,4 +36,8 @@ class Article(models.Model):
     def __str__(self):
         return self.title
 
-
+class ArticleLikeDislike(models.Model):
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    likes = models.BooleanField(default=False, null=True)
+    createdAt = models.DateTimeField(auto_now_add=True)

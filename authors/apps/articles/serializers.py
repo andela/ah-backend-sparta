@@ -29,3 +29,13 @@ class ArticleDetailSerializer(serializers.ModelSerializer):
         comment_query_set = Comment.objects.filter(article_id=comment.id, parent_id=None)
         comments = CommentDetailSerializer(comment_query_set, many=True).data
         return comments
+
+class ArticleLikeDislikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ["user", "article", "likes", "createdAt"]
+        model = models.ArticleLikeDislike
+        extra_kwargs = {
+            'user': {'write_only': True},
+            'article': {'write_only': True},
+        }
+        
