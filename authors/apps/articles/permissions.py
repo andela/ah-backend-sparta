@@ -17,6 +17,5 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
         # Instance must have an attribute named `owner`.
         profile = Profile.objects.filter(user=request.user).first()
-        user = Article.objects.filter(author=profile).first()
-        return obj.author == user
+        return obj.author == profile
 
