@@ -3,7 +3,7 @@ from django.urls import path
 from .views import (
     LoginAPIView, RegistrationAPIView, 
     UserRetrieveUpdateAPIView, FacebookAuthApiView, 
-    GoogleAuthApiView, TwitterAuthApiView, VerifyUserAPIView
+    GoogleAuthApiView, TwitterAuthApiView, VerifyUserAPIView, FavoritesList
 )
 
 urlpatterns = [
@@ -13,5 +13,6 @@ urlpatterns = [
     path('users/login/facebook', FacebookAuthApiView.as_view(), name='facebook'),
     path('users/login/google', GoogleAuthApiView.as_view(), name='google'),
     path('users/login/twitter', TwitterAuthApiView.as_view(), name='twitter'),
-    path('users/verify/', VerifyUserAPIView.as_view(), name='verify-user')
+    path('users/verify/', VerifyUserAPIView.as_view(), name='verify-user'),
+    path('users/articles/favorites', FavoritesList.as_view(), name='favorites'),
 ]

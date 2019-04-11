@@ -3,6 +3,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 
 from authors.apps.profiles.models import Profile
+from authors.apps.authentication.models import User
 from django.conf import settings
 import math
 
@@ -17,6 +18,7 @@ class Article(models.Model):
     author = models.ForeignKey(Profile, on_delete=models.CASCADE,
      related_name='author')
     tags = fields.ArrayField(models.CharField(max_length=100), blank=True, default=list)
+    favorite = models.ManyToManyField(User, related_name='favorite', blank=True, default=False)
 
     #like-dislike
     likes = models.IntegerField(default=0)

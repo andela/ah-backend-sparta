@@ -125,3 +125,23 @@ class TestArticle(test_base.BaseTestCase):
                                             HTTP_AUTHORIZATION=user1_token, format='json')
         self.assertEqual(dislike_data["likes"], user1_dislike_resp.data["details"]["likes"]) 
 
+    def test_favorite_article(self):
+        user_token = self.create_user(test_data.test_user_data)
+        response = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user_token, format='json')
+        article_slug = response.data['article']['slug']
+        response1 = self.client.post(f'/api/articles/{article_slug}/favorite', {'favorite': True}, HTTP_AUTHORIZATION=user_token, format='json')
+        response2 = self.client.post(f'/api/articles/{article_slug}/favorite', {'favorite': True}, HTTP_AUTHORIZATION=user_token, format='json')
+        response3 = self.client.post(f'/api/articles/{article_slug}/favorite', {'favorite': False}, HTTP_AUTHORIZATION=user_token, format='json')
+        response4 = self.client.post(f'/api/articles/{article_slug}/favorite', {'favorite': False}, HTTP_AUTHORIZATION=user_token, format='json')
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response3.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response4.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_favorite_list(self):
+        user_token = self.create_user(test_data.test_user_data)
+        response = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user_token, format='json')
+        article_slug = response.data['article']['slug']
+        response1 = self.client.post(f'/api/articles/{article_slug}/favorite', None, HTTP_AUTHORIZATION=user_token, format='json')
+        response2 = self.client.get(f'/api/users/articles/favorites', HTTP_AUTHORIZATION=user_token, format='json')
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
