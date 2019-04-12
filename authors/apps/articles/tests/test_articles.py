@@ -1,6 +1,7 @@
 from unittest import mock
 
 from rest_framework import status
+from authors.apps.articles.models import  Article
 
 from authors.apps.articles.models import Article
 from authors.apps.authentication.tests import (
@@ -123,3 +124,4 @@ class TestArticle(test_base.BaseTestCase):
         user1_dislike_resp = self.client.post(f'/api/articles/{response.data["article"]["slug"]}/like', dislike_data,
                                             HTTP_AUTHORIZATION=user1_token, format='json')
         self.assertEqual(dislike_data["likes"], user1_dislike_resp.data["details"]["likes"]) 
+
