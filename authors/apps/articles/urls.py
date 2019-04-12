@@ -6,9 +6,9 @@ from .views import (
     CommentCreateAPIView,
     CreateReplyToCommentAPIView,
     DeleteUpdateCommentAPIView,
-    ArticleLikeDislikeView
+    ArticleLikeDislikeView,
+    FavoriteArticle
 )
- 
 
 app_name = "article_application"
 urlpatterns = [
@@ -20,4 +20,5 @@ urlpatterns = [
     path('articles/<slug>/comments/<int:pk>', DeleteUpdateCommentAPIView.as_view(), name='delete-update-comment'),
     path('articles/<slug>/comments', RetrieveArticleCommentDetails.as_view(), name='articles-comments-details'),
     path('articles/<slug>/like', ArticleLikeDislikeView.as_view(), name='like-dislike'),
+    path('articles/<slug>/favorite', FavoriteArticle.as_view(), name='favorite'),
 ]

@@ -9,11 +9,29 @@ from authors.apps.comments.serializers import CommentDetailSerializer
 class ArticleSerializer(serializers.ModelSerializer):
     author = ProfileSerializer(required=False)
     article_read_time = serializers.CharField(max_length=100, read_only=True)
+    favorite = serializers.SerializerMethodField()
 
     class Meta:
         fields = '__all__'
         model = models.Article
         read_only_fields = ['author', 'slug', 'article_read_time']
+
+    def fetch_usernames(self, users):
+        """
+        Generate usernames from user profiles
+        """
+        user_list = []
+        for user in users:
+            user_list.append(user.username)
+        return user_list
+
+
+    def get_favorite(self, obj):
+        """
+        returns username rather than user id
+        """
+        article_fav_users = obj.favorite.all()
+        return self.fetch_usernames(article_fav_users)
 
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
@@ -31,6 +49,7 @@ class ArticleDetailSerializer(serializers.ModelSerializer):
         comments = CommentDetailSerializer(comment_query_set, many=True).data
         return comments
 
+
 class ArticleLikeDislikeSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ["user", "article", "likes", "createdAt"]
@@ -39,4 +58,4 @@ class ArticleLikeDislikeSerializer(serializers.ModelSerializer):
             'user': {'write_only': True},
             'article': {'write_only': True},
         }
-        
+

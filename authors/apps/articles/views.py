@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from rest_framework import generics ,status
 from .models import Article, ArticleLikeDislike
 from authors.apps.profiles.models import Profile
@@ -39,6 +39,7 @@ class ListCreateArticle(generics.ListCreateAPIView):
 
         serializer.save(author=author, slug=Article.get_slug(article.get('title')))
         return Response({"article": serializer.data})
+
 
 
 class RetrieveUpdateDestroyArticle(generics.RetrieveUpdateDestroyAPIView):
@@ -202,3 +203,34 @@ class ArticleLikeDislikeView(generics.GenericAPIView):
         Article.objects.filter(slug=slug).update(likes=likes.count() , dislikes=dislikes.count())
 
         return Response(data, status=status.HTTP_200_OK)
+        
+class FavoriteArticle(generics.CreateAPIView):
+    """
+    User should favorite and unfavorite an article
+    """
+    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly)
+    queryset = Article.objects.all()
+    serializer_class = serializers.ArticleSerializer
+
+    def post(self, request, *args, **kwargs):
+        favorite_state = request.data.get('favorite')
+        if favorite_state is None:
+            return Response({'msg': 'Please provide a valid request body'}, status.HTTP_400_BAD_REQUEST)
+            
+        self.lookup_field = 'slug'
+        article = get_object_or_404(self.queryset, slug=self.kwargs.get('slug'))
+        returned_status = status.HTTP_200_OK
+        if article.favorite.filter(email=request.user.email):
+            if favorite_state:
+                return Response({'msg': 'You have already favorited this article'}, status.HTTP_400_BAD_REQUEST)
+            article.favorite.remove(request.user)
+            returned_status = status.HTTP_204_NO_CONTENT
+        else:
+            if not favorite_state:
+                return Response({'msg': 'You have already unfavorited this article'}, status.HTTP_400_BAD_REQUEST)
+            article.favorite.add(request.user)
+            returned_status = status.HTTP_201_CREATED
+
+        article.save()
+        serializer = self.serializer_class(article)
+        return Response(serializer.data, status=returned_status)

@@ -13,7 +13,9 @@ from .serializers import (
 LoginSerializer, RegistrationSerializer, UserSerializer, FacebookAuthSerializer, GoogleAuthSerializer, TwitterAuthSerializer
 )
 from .models import User
-
+from authors.apps.articles.permissions import IsOwnerOrReadOnly
+from authors.apps.articles.models import Article
+from authors.apps.articles import serializers
 
 class RegistrationAPIView(GenericAPIView):
     # Allow any user (authenticated or not) to hit this endpoint.
@@ -129,5 +131,19 @@ class VerifyUserAPIView(generics.GenericAPIView):
         except Exception as identifier:
             return Response({"Message":"Something went wrong"})
 
-       
 
+class FavoritesList(generics.ListAPIView):
+    """
+    Users should view a list of articles they have favorited
+    """
+    permission_classes = (IsAuthenticated, IsOwnerOrReadOnly,)
+    queryset = Article.objects.all()
+    serializer_class = serializers.ArticleSerializer
+    lookup_field = 'pk'
+
+    def get(self, request):
+        user = request.user
+        favorite_articles = user.favorite.all()
+        serializer = self.serializer_class(favorite_articles, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+  
