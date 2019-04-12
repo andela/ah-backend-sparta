@@ -8,11 +8,12 @@ from authors.apps.comments.serializers import CommentDetailSerializer
 
 class ArticleSerializer(serializers.ModelSerializer):
     author = ProfileSerializer(required=False)
+    article_read_time = serializers.CharField(max_length=100, read_only=True)
 
     class Meta:
         fields = '__all__'
         model = models.Article
-        read_only_fields = ['author', 'slug']
+        read_only_fields = ['author', 'slug', 'article_read_time']
 
 
 class ArticleDetailSerializer(serializers.ModelSerializer):

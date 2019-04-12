@@ -1,9 +1,11 @@
-from django.db import models
-from django.utils import timezone
-from authors.apps.authentication.models import User
-from django.template.defaultfilters import slugify
-from authors.apps.profiles.models import Profile
 from django.contrib.postgres import fields
+from django.db import models
+from django.template.defaultfilters import slugify
+
+from authors.apps.profiles.models import Profile
+from django.conf import settings
+import math
+
 
 class Article(models.Model):
     title = models.CharField(max_length = 100)
@@ -33,11 +35,28 @@ class Article(models.Model):
         except Article.DoesNotExist:
             return slugify(title + "-first")
 
+    @property
+    def article_read_time(self):
+        """
+        Method to calculate article read time
+        """
+        word_count = 0
+        word_count += len(self.body) / int(settings.WORD_LENGTH)
+        result = int(word_count / int(settings.WORD_PER_MINUTE))
+
+        read_time =  f"{result} minute read" if result >= 1 else "less than a minute read"
+        
+        return read_time
+
     def __str__(self):
         return self.title
+
 
 class ArticleLikeDislike(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     likes = models.BooleanField(default=False, null=True)
     createdAt = models.DateTimeField(auto_now_add=True)
+    
+
+
