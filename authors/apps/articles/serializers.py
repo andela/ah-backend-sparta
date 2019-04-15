@@ -4,17 +4,19 @@ from authors.apps.profiles.serializers import ProfileSerializer
 from .models import Article
 from authors.apps.comments.models import Comment
 from authors.apps.comments.serializers import CommentDetailSerializer
+from authors.apps.helpers.share_articles import share_articles_links
 
 
 class ArticleSerializer(serializers.ModelSerializer):
     author = ProfileSerializer(required=False)
     article_read_time = serializers.CharField(max_length=100, read_only=True)
     favorite = serializers.SerializerMethodField()
+    share_article_links = serializers.SerializerMethodField()
 
     class Meta:
         fields = '__all__'
         model = models.Article
-        read_only_fields = ['author', 'slug', 'article_read_time']
+        read_only_fields = ['author', 'slug', 'article_read_time', 'share_article_links']
 
     def fetch_usernames(self, users):
         """
@@ -32,6 +34,9 @@ class ArticleSerializer(serializers.ModelSerializer):
         """
         article_fav_users = obj.favorite.all()
         return self.fetch_usernames(article_fav_users)
+
+    def get_share_article_links(self, obj):
+        return share_articles_links(obj, self.context['request'])
 
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
