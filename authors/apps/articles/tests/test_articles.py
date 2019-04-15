@@ -145,3 +145,20 @@ class TestArticle(test_base.BaseTestCase):
         response1 = self.client.post(f'/api/articles/{article_slug}/favorite', None, HTTP_AUTHORIZATION=user_token, format='json')
         response2 = self.client.get(f'/api/users/articles/favorites', HTTP_AUTHORIZATION=user_token, format='json')
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
+
+
+    def test_article_contains_share_links(self):
+        """
+        Test article contains share links
+        """
+        user_token = self.create_user(test_data.test_user_data)
+        resp = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user_token, format='json')
+        response = self.client.get('/api/articles/', format='json')
+        self.assertEqual(response.data["results"][0]["share_article_links"]["facebook"], 
+        'https://www.facebook.com/sharer/sharer.php?u=http%3A//testserver/api/articles/hello-slug-first')
+        self.assertEqual(response.data["results"][0]["share_article_links"]["twitter"], 
+        'https://twitter.com/home?status=http%3A//testserver/api/articles/hello-slug-first')
+        self.assertEqual(response.data["results"][0]["share_article_links"]["googleplus"], 
+        'https://plus.google.com/share?url=http%3A//testserver/api/articles/hello-slug-first')
+        self.assertEqual(response.data["results"][0]["share_article_links"]["email"], 
+        'mailto:?&subject=hello%20slug&body=hello%20slug%0A%0Ahttp%3A//testserver/api/articles/hello-slug-first')

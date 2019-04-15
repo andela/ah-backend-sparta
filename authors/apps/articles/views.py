@@ -29,10 +29,18 @@ class ListCreateArticle(generics.ListCreateAPIView):
     serializer_class = serializers.ArticleSerializer
     pagination_class = ArticlePageNumberPagination
 
+    def get_serializer_context(self):
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': self.request
+        }
+
     def create(self, request):
         article = request.data
 
-        serializer = self.serializer_class(data=article)
+        serializer = self.serializer_class(data=article, context={'request':self.request})
 
         author = Profile.objects.get(username=self.request.user.username)
         serializer.is_valid(raise_exception=True)
@@ -52,6 +60,8 @@ class RetrieveUpdateDestroyArticle(generics.RetrieveUpdateDestroyAPIView):
     queryset = Article.objects.all()
     serializer_class = serializers.ArticleSerializer
     lookup_field = 'slug'
+
+    
 
 
 class RetrieveArticleCommentDetails(generics.RetrieveAPIView):
@@ -232,5 +242,5 @@ class FavoriteArticle(generics.CreateAPIView):
             returned_status = status.HTTP_201_CREATED
 
         article.save()
-        serializer = self.serializer_class(article)
+        serializer = self.serializer_class(article, context={'request':self.request})
         return Response(serializer.data, status=returned_status)

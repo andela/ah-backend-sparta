@@ -14,7 +14,7 @@ class CommentSerializer(ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
-        read_only_fields =('id', 'parent', 'reply_count', 'createdAt', 'author')
+        read_only_fields = ('id', 'parent', 'reply_count', 'createdAt', 'author')
 
     def get_reply_count(self, obj):
         if obj.is_parent:
