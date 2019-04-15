@@ -10,6 +10,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     author = ProfileSerializer(required=False)
     article_read_time = serializers.CharField(max_length=100, read_only=True)
     favorite = serializers.SerializerMethodField()
+    average_rating = serializers.SerializerMethodField()
 
     class Meta:
         fields = '__all__'
@@ -32,6 +33,9 @@ class ArticleSerializer(serializers.ModelSerializer):
         """
         article_fav_users = obj.favorite.all()
         return self.fetch_usernames(article_fav_users)
+
+    def get_average_rating(self, obj):
+        return obj.average_rating()
 
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
@@ -59,3 +63,13 @@ class ArticleLikeDislikeSerializer(serializers.ModelSerializer):
             'article': {'write_only': True},
         }
 
+class ArticleRatignSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ArticleRating
+        fields = ["id", "user", "article", "ratings", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+        def validate_ratings(self, value):
+            if value < 0 or value > 5:
+                raise serializers.ValidationError("Error: Ratings should be between 0 and 5")
+            raise value
