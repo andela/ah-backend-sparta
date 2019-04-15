@@ -71,3 +71,7 @@ class ArticleRating(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='ratings')
     ratings = models.IntegerField()
     rating_created = models.DateField(auto_now_add=True)
+
+class ReadingStats(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, blank=True)

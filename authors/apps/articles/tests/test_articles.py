@@ -147,6 +147,10 @@ class TestArticle(test_base.BaseTestCase):
         response2 = self.client.get(f'/api/users/articles/favorites', HTTP_AUTHORIZATION=user_token, format='json')
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
 
+    def test_read_stats(self):
+        user_token = self.create_user(test_data.test_user_data)
+        response2 = self.client.get(f'/api/users/articles/most-recent-reads', HTTP_AUTHORIZATION=user_token, format='json')
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
 
     def test_article_contains_share_links(self):
         """
