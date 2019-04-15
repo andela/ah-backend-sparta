@@ -13,7 +13,8 @@ from authors.apps.articles.tests.test_data import (
     test_user2_data, 
     changed_article_data,
     article_data_no_body,
-    like_data, dislike_data
+    like_data, dislike_data,
+    user1_rating, user2_rating_fail
     )
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -162,3 +163,19 @@ class TestArticle(test_base.BaseTestCase):
         'https://plus.google.com/share?url=http%3A//testserver/api/articles/hello-slug-first')
         self.assertEqual(response.data["results"][0]["share_article_links"]["email"], 
         'mailto:?&subject=hello%20slug&body=hello%20slug%0A%0Ahttp%3A//testserver/api/articles/hello-slug-first')
+        
+    def test_user_can_rate_article(self):
+        user_token = self.create_user(test_user_data)
+        resp = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user_token, format='json')
+        self.assertEqual(resp.data['article']['average_rating'], None)
+
+        article_slug = resp.data['article']['slug']
+        fail_response = self.client.post(f'/api/articles/{article_slug}/rate', user2_rating_fail, HTTP_AUTHORIZATION=user_token, format='json')
+        self.assertIn('Ratings should be between 0-5', fail_response.data['errors']['ratings'])
+
+        
+        response = self.client.post(f'/api/articles/{article_slug}/rate', user1_rating, HTTP_AUTHORIZATION=user_token, format='json')
+        self.assertEqual(response.data['message'], 'Rating received')
+
+        rate_again = self.client.post(f'/api/articles/{article_slug}/rate', user1_rating, HTTP_AUTHORIZATION=user_token, format='json')
+        self.assertEqual(rate_again.data['message'], 'You have already rated.')

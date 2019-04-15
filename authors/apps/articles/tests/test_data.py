@@ -39,3 +39,6 @@ like_data = {
 dislike_data = {
     "likes": False
     }
+
+user1_rating = {'ratings':4}
+user2_rating_fail = {'ratings':10}

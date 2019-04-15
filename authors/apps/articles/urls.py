@@ -7,7 +7,8 @@ from .views import (
     CreateReplyToCommentAPIView,
     DeleteUpdateCommentAPIView,
     ArticleLikeDislikeView,
-    FavoriteArticle
+    FavoriteArticle,
+    RatingsView
 )
 
 app_name = "article_application"
@@ -21,4 +22,5 @@ urlpatterns = [
     path('articles/<slug>/comments', RetrieveArticleCommentDetails.as_view(), name='articles-comments-details'),
     path('articles/<slug>/like', ArticleLikeDislikeView.as_view(), name='like-dislike'),
     path('articles/<slug>/favorite', FavoriteArticle.as_view(), name='favorite'),
+    path("articles/<slug>/rate", RatingsView.as_view(), name="rating"),
 ]

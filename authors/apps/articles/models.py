@@ -50,6 +50,12 @@ class Article(models.Model):
         
         return read_time
 
+    @property
+    def average_rating(self):
+        ratings = self.ratings.all().aggregate(ratings=models.Avg("ratings"))
+        return float('%.2f' % (ratings["ratings"])) if ratings["ratings"] else None
+        
+
     def __str__(self):
         return self.title
 
@@ -60,5 +66,8 @@ class ArticleLikeDislike(models.Model):
     likes = models.BooleanField(default=False, null=True)
     createdAt = models.DateTimeField(auto_now_add=True)
     
-
-
+class ArticleRating(models.Model):
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='ratings')
+    ratings = models.IntegerField()
+    rating_created = models.DateField(auto_now_add=True)
