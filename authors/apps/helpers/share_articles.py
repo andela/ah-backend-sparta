@@ -2,7 +2,6 @@ import urllib.parse
 from django.urls import reverse
 from django.conf import settings
 
-
 def share_articles_links(obj, request):
     """
     Generates sharing links for popular plaforms
