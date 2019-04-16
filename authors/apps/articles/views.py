@@ -13,7 +13,7 @@ from authors.apps.comments.models import Comment
 from authors.apps.comments.serializers import CommentSerializer
 from authors.apps.profiles.models import Profile
 from . import serializers
-from .models import Article
+from .models import Article, ArticleRating
 from .pagination import ArticlePageNumberPagination
 from .permissions import IsOwnerOrReadOnly
 
@@ -244,3 +244,23 @@ class FavoriteArticle(generics.CreateAPIView):
         article.save()
         serializer = self.serializer_class(article, context={'request':self.request})
         return Response(serializer.data, status=returned_status)
+
+class RatingsView(generics.CreateAPIView):
+    """
+    view for rating for articles
+    """
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    serializer_class = serializers.ArticleRatingSerializer
+
+    def post(self, request, **kwargs):
+        ratings = ArticleRating.objects.filter(user=request.user.profile, article__slug=kwargs.get('slug'))
+        if ratings.count() == 0:
+            article = Article.objects.filter(slug=kwargs.get('slug')).first()
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(user=request.user.profile, article=article)
+            return Response(
+                {'message': 'Rating received'},
+                status = status.HTTP_201_CREATED)
+        return Response({"message": "You have already rated."})
+        
