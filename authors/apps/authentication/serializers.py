@@ -11,6 +11,11 @@ from google.auth.transport import requests
 
 from .models import User
 from .social_registration import register_social_user
+from django.core.mail import EmailMessage
+from django.contrib.sites.shortcuts import get_current_site
+from django.shortcuts import get_object_or_404
+
+
 
 class RegistrationSerializer(serializers.ModelSerializer):
     """Serializers registration requests and creates a new user."""
@@ -214,6 +219,35 @@ class UserSerializer(serializers.ModelSerializer):
 
         return instance
 
+class ResetPasswordSerializer(serializers.Serializer):
+
+    email = serializers.EmailField(allow_blank=False)
+
+    def validate_email(self, data):
+        email = data.get('email', None)
+        if email is None:
+            raise serializers.ValidationError(
+                'Email is required'
+                )
+        return data
+
+class ConfirmPasswordSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        max_length=128,
+        min_length=8,
+        write_only=True
+    )
+
+    confirm_password = serializers.CharField(
+        max_length=128,
+        min_length=8,
+        write_only=True
+    )
+    class Meta:
+        model = User
+        fields = ('password','confirm_password')
+
+    
 class SocialAuthSerializer(serializers.Serializer):
     """
     Social Authentication parent class

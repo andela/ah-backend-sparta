@@ -1,6 +1,6 @@
 from .test_base import BaseTestCase
 from authors.apps.authentication.serializers import (
-    LoginSerializer, UserSerializer
+    LoginSerializer, UserSerializer, ResetPasswordSerializer
 )
 from unittest.mock import patch, MagicMock, PropertyMock
 
@@ -109,4 +109,11 @@ class TestLoginSerializer(BaseTestCase):
 
         class_instance = UpdateUserInstance()
         self.assertEqual(UserSerializer().update(class_instance, data_to_update_user), class_instance)
-
+    
+    def test_email_not_provided_for_password_reset(self): 
+        no_email_data = { 
+            "email":None
+        } 
+        with self.assertRaises(ValidationError) as e: 
+            ResetPasswordSerializer().validate_email(no_email_data) 
+        self.assertEqual(e.exception.args[0], 'Email is required')
