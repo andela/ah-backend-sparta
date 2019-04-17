@@ -4,6 +4,7 @@ from authors.apps.profiles.serializers import ProfileSerializer
 from .models import Article
 from authors.apps.comments.models import Comment
 from authors.apps.comments.serializers import CommentDetailSerializer
+from authors.apps.authentication.serializers import UserSerializer
 from authors.apps.helpers.share_articles import share_articles_links
 
 
@@ -83,3 +84,9 @@ class ArticleRatingSerializer(serializers.ModelSerializer):
         return value
 
         
+
+class ReadingStatsSerializer(serializers.ModelSerializer):
+    article = ArticleSerializer(read_only=True)
+    class Meta:
+        fields = ["article"]
+        model = models.ReadingStats

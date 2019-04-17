@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render
 from rest_framework import generics ,status
-from .models import Article, ArticleLikeDislike
+from .models import Article, ArticleLikeDislike, ReadingStats
 from authors.apps.profiles.models import Profile
 from . import serializers
 from rest_framework.response import Response
@@ -40,7 +40,7 @@ class ListCreateArticle(generics.ListCreateAPIView):
     def create(self, request):
         article = request.data
 
-        serializer = self.serializer_class(data=article, context={'request':self.request})
+        serializer = self.serializer_class(data=article, context=self.get_serializer_context())
 
         author = Profile.objects.get(username=self.request.user.username)
         serializer.is_valid(raise_exception=True)
@@ -60,6 +60,15 @@ class RetrieveUpdateDestroyArticle(generics.RetrieveUpdateDestroyAPIView):
     queryset = Article.objects.all()
     serializer_class = serializers.ArticleSerializer
     lookup_field = 'slug'
+
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        article = self.get_object()
+        if not user.is_anonymous:
+            ReadingStats.objects.create(article=article, user=user)
+        serializer = serializers.ArticleSerializer(article, context=self.get_serializer_context())
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     
 

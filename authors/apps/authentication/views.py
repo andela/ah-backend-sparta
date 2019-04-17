@@ -22,6 +22,8 @@ from authors.apps.articles import serializers
 from authors import settings
 from authors.settings import SECRET_KEY
 
+from authors.apps.articles.models import Article, ReadingStats
+from authors.apps.articles import serializers, models
 
 class RegistrationAPIView(GenericAPIView):
     # Allow any user (authenticated or not) to hit this endpoint.
@@ -207,3 +209,22 @@ class PasswordChangeView(GenericAPIView):
             {"error": "Passwords do not match"},
             status=status.HTTP_400_BAD_REQUEST
             )
+  
+class ReadingStatsView(generics.ListAPIView):
+    """
+    The user should be able to see ten of their most recent reads
+    """
+    permission_classes = [IsAuthenticated]
+    queryset = models.ReadingStats.objects.all()
+    serializer_class = serializers.ReadingStatsSerializer
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request
+        }
+
+    def get(self, request):
+        current_user_id = request.user.id
+        user_recent_reads = ReadingStats.objects.filter(user_id=current_user_id).distinct('article_id')[::-1][:10]
+        serializer = self.serializer_class(user_recent_reads, context=self.get_serializer_context(), many=True)
+        return Response({"read_stats": serializer.data}, status=status.HTTP_200_OK)
