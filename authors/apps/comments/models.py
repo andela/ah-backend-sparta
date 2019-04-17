@@ -18,6 +18,7 @@ class Comment(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
     history = HistoricalRecords()
+    article_text = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.body

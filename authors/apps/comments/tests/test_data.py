@@ -31,7 +31,39 @@ update_user_profile_data1 = {
 
 comment_data = {
   "comment": {
-    "body": "We love our TTl"
+    "body": "We love our TTl",
+  }
+}
+
+highlight_comment_data = {
+  "comment": {
+    "body": "We love our TTl",
+    "start_position":1,
+	  "end_position":4
+  }
+}
+
+out_of_range_data = {
+  "comment": {
+    "body": "We love our TTl",
+    "start_position":10,
+	  "end_position":1000
+  }
+}
+
+startpoint_less_endpoint = {
+  "comment": {
+    "body": "We love our TTl",
+    "start_position":1000,
+	  "end_position":10
+  }
+}
+
+invalid_comment = {
+  "comment": {
+    "body": "We love our TTl",
+    "start_position":"1",
+	  "end_position":4
   }
 }
 
