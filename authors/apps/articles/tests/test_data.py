@@ -49,3 +49,21 @@ dislike_data = {
 
 user1_rating = {'ratings':4}
 user2_rating_fail = {'ratings':10}
+
+comment_1 = {
+  "comment": {
+    "body": "Machester was fake yesterday trully"
+  }
+}
+
+comment_2 = {
+  "comment": {
+    "body": "But Barca was better"
+  }
+}
+
+comment_3 = {
+  "comment": {
+    "body": "But did you see the Tottenham GAME!!"
+  }
+}

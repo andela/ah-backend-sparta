@@ -17,7 +17,8 @@ from rest_framework.generics import (
     DestroyAPIView,
     CreateAPIView,
     RetrieveUpdateAPIView,
-    ListCreateAPIView
+    ListCreateAPIView,
+    GenericAPIView
 )
 from rest_framework.permissions import (
     AllowAny,
@@ -73,3 +74,29 @@ class CommentReplyDetailsView(ListAPIView):
 
     def get_queryset(self):
         return self.queryset.filter(parent_id=self.kwargs.get('parent_id')).order_by('createdAt')
+
+class CommentEditHistoryView(GenericAPIView):
+    """
+    history of comment for particular user
+    """
+    def get(self, request, pk):
+        comment = get_object_or_404(Comment, id=pk)
+        comment_history = comment.history.all()
+
+        edit_history = []
+        for edit in list(comment_history):
+            
+            
+            comment_edit_history = {
+                "date": edit.history_date,
+                "id": edit.history_id,
+                "comment_body": edit.body
+            }
+            edit_history.append(comment_edit_history)
+            
+        comment = Comment.objects.get(pk=pk)
+       
+        return Response({
+            "history": edit_history,
+            "number_of_edits": len(edit_history) - 1
+        }, status=status.HTTP_200_OK)

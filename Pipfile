@@ -25,6 +25,7 @@ facebook-sdk = "*"
 google-api-python-client = "*"
 python-twitter = "*"
 django-filter = "*"
+django-simple-history = "*"
 
 [requires]
 python_version = "3.6.5"

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'rest_framework_swagger',
+    'simple_history',
     
     'authors.apps.authentication',
     'authors.apps.core',

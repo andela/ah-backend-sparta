@@ -4,6 +4,7 @@ Module to define user profile model
 from django.db import models
 from authors.apps.authentication.models import User
 from authors.apps.articles.models import Article
+from simple_history.models import HistoricalRecords
 
 
 class Comment(models.Model):
@@ -16,6 +17,7 @@ class Comment(models.Model):
     body = models.TextField()
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.body

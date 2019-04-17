@@ -14,7 +14,8 @@ from authors.apps.articles.tests.test_data import (
     changed_article_data,
     article_data_no_body,
     like_data, dislike_data,
-    user1_rating, user2_rating_fail, 
+    user1_rating, user2_rating_fail,
+    comment_1, comment_2, comment_3,
     search_article_data
     )
 from rest_framework import status
@@ -217,3 +218,26 @@ class TestArticle(test_base.BaseTestCase):
         article_title = keyword_get_resp.data.get('results')[0]['title']
         self.assertIn('slu', article_title)
     
+    def test_create_article_comment_history(self):
+        user_token = self.create_user(test_user_data)
+        resp = self.client.post('/api/articles/', article_data, 
+                            HTTP_AUTHORIZATION=user_token, format='json')
+        article_slug = resp.data['article']['slug']
+        post_comment = self.client.post(f'/api/articles/{article_slug}/comments/', 
+                                comment_1, HTTP_AUTHORIZATION=user_token, format='json')
+        comment_id = post_comment.data["id"]
+        
+        self.client.put(f'/api/articles/{article_slug}/comments/{comment_id}', 
+                                comment_2, HTTP_AUTHORIZATION=user_token, format='json')
+        self.client.put(f'/api/articles/{article_slug}/comments/{comment_id}', 
+                                comment_3, HTTP_AUTHORIZATION=user_token, format='json')
+        get_comment_history = self.client.get(f'/api/comments/{comment_id}/history', 
+                                HTTP_AUTHORIZATION=user_token, format='json')
+   
+        self.assertIn(comment_1["comment"]["body"], 
+                                get_comment_history.data["history"][2]["comment_body"])
+        self.assertIn(comment_2["comment"]["body"], 
+                                get_comment_history.data["history"][1]["comment_body"])
+        self.assertEqual(get_comment_history.data["number_of_edits"], 2)
+
+        
