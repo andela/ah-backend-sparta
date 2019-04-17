@@ -10,6 +10,27 @@ search_article_data = {
 	"body":"changing state --test user",
     "tags": ["Arsenal", "soccer"]
 }
+article_data1 = {
+	"title":"new article",
+	"description":"learning how to write",
+	"body":"This article is for a beginner"
+}
+
+register_user1_data =  {
+            "user": {
+                "username": "maria22",
+                "email": "maria@gmail.com",
+                "password": "Maria@12345"
+            }
+}
+
+register_user2_data =  {
+            "user": {
+                "username": "joan22",
+                "email": "joan@gmail.com",
+                "password": "Jaria@12345"
+            }
+}
 
 changed_article_data = {
 	"title":"hello slug",

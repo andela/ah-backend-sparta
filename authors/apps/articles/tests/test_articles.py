@@ -1,5 +1,5 @@
 from unittest import mock
-
+from django.urls import reverse
 from rest_framework import status
 from authors.apps.articles.models import  Article
 
@@ -16,7 +16,12 @@ from authors.apps.articles.tests.test_data import (
     like_data, dislike_data,
     user1_rating, user2_rating_fail,
     comment_1, comment_2, comment_3,
-    search_article_data
+    search_article_data,
+    search_article_data,
+    user1_rating, user2_rating_fail,
+    register_user1_data,
+    register_user2_data,
+    article_data1
     )
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -241,3 +246,152 @@ class TestArticle(test_base.BaseTestCase):
         self.assertEqual(get_comment_history.data["number_of_edits"], 2)
 
         
+    def test_user_can_bookmark_an_article(self):
+        """
+        Test a user can bookmark an article
+        """
+        user_token1 = self.create_user(register_user1_data)
+        user_token2 = self.create_user(register_user2_data)
+        
+        response1 = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user_token1,
+                                     format='json')
+        response2= self.client.post('/api/articles/', article_data1, HTTP_AUTHORIZATION=user_token2,
+                                     format='json')
+
+        response3 = self.client.post(reverse('articles:create-bookmark-article',
+                                             kwargs={'slug': response2.data["article"]["slug"]}),
+                                     HTTP_AUTHORIZATION=user_token1,
+                                     format='json'
+                                     )
+        self.assertEqual(response3.data["message"], "Article has been bookmarked")
+        self.assertEqual(response3.status_code, status.HTTP_201_CREATED)
+
+    def test_user_can_unbookmark_an_article(self):
+        """
+        Test a user can unbookmark an article
+        """
+        user_token1 = self.create_user(register_user1_data)
+        user_token2 = self.create_user(register_user2_data)
+        
+        response1 = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user_token1,
+                                     format='json')
+        response2= self.client.post('/api/articles/', article_data1, HTTP_AUTHORIZATION=user_token2,
+                                     format='json')
+
+        response3 = self.client.post(reverse('articles:create-bookmark-article',
+                                             kwargs={'slug': response2.data["article"]["slug"]}),
+                                     HTTP_AUTHORIZATION=user_token1,
+                                     format='json'
+                                     )
+        response4 = self.client.delete(reverse('articles:delete-bookmarked-article',
+                                             kwargs={'slug': response2.data["article"]["slug"]}),
+                                     HTTP_AUTHORIZATION=user_token1,
+                                     format='json'
+                                     )
+        self.assertEqual(response4.data["message"], "Article has been unbookmarked")
+        self.assertEqual(response4.status_code, status.HTTP_200_OK)
+
+    def test_getting_a_list_of_bookmarked_articles(self):
+        """
+        Test getting all user bookmarked articles
+        """
+        user_token1 = self.create_user(register_user1_data)
+        user_token2 = self.create_user(register_user2_data)
+        
+        response1 = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user_token1,
+                                     format='json')
+        response2= self.client.post('/api/articles/', article_data1, HTTP_AUTHORIZATION=user_token2,
+                                     format='json')
+
+        response3 = self.client.post(reverse('articles:create-bookmark-article',
+                                             kwargs={'slug': response2.data["article"]["slug"]}),
+                                     HTTP_AUTHORIZATION=user_token1,
+                                     format='json'
+                                     )
+        response4 = self.client.get(reverse('articles:articles-bookmarked'),
+                                     HTTP_AUTHORIZATION=user_token1,
+                                     format='json'
+                                     )
+        self.assertEqual(response4.status_code, status.HTTP_200_OK)
+
+    # def test_user_bookmarking_their_own_article(self):
+    #     """
+    #     Test user can not bookmark their artcle
+    #     """
+    #     user_token1 = self.create_user(register_user1_data)
+    #     user_token2 = self.create_user(register_user2_data)
+        
+    #     response1 = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user_token1,
+    #                                  format='json')
+    #     response2= self.client.post('/api/articles/', article_data1, HTTP_AUTHORIZATION=user_token2,
+    #                                  format='json')
+
+    #     response3 = self.client.post(reverse('articles:create-bookmark-article',
+    #                                          kwargs={'slug': response1.data["article"]["slug"]}),
+    #                                  HTTP_AUTHORIZATION=user_token1,
+    #                                  format='json'
+    #                                  )
+    #     self.assertEqual(response3.data["errors"][0], "You can not bookmark your own article")
+    #     self.assertEqual(response3.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_user_bookmarking_the_same_article(self):
+        """
+        Test user bookmarking the same article
+        """
+        user_token1 = self.create_user(register_user1_data)
+        user_token2 = self.create_user(register_user2_data)
+        
+        response1 = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user_token1,
+                                     format='json')
+        response2= self.client.post('/api/articles/', article_data1, HTTP_AUTHORIZATION=user_token2,
+                                     format='json')
+
+        response3 = self.client.post(reverse('articles:create-bookmark-article',
+                                             kwargs={'slug': response2.data["article"]["slug"]}),
+                                     HTTP_AUTHORIZATION=user_token1,
+                                     format='json'
+                                     )
+        response4 = self.client.post(reverse('articles:create-bookmark-article',
+                                             kwargs={'slug': response2.data["article"]["slug"]}),
+                                     HTTP_AUTHORIZATION=user_token1,
+                                     format='json'
+                                     )
+        self.assertEqual(response4.data["message"], "You have already bookmarked this article")
+        self.assertEqual(response4.status_code, status.HTTP_200_OK)
+
+    def test_user_can_unbookmark_an_article_that_does_not_exist(self):
+        """
+        Test a user can unbookmark an article that does not exist
+        """
+        user_token1 = self.create_user(register_user1_data)
+        user_token2 = self.create_user(register_user2_data)
+        
+        response1 = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user_token1,
+                                     format='json')
+        response2= self.client.post('/api/articles/', article_data1, HTTP_AUTHORIZATION=user_token2,
+                                     format='json')
+
+        response3 = self.client.post(reverse('articles:create-bookmark-article',
+                                             kwargs={'slug': response2.data["article"]["slug"]}),
+                                     HTTP_AUTHORIZATION=user_token1,
+                                     format='json'
+                                     )
+        response4 = self.client.delete(reverse('articles:delete-bookmarked-article',
+                                             kwargs={'slug': response2.data["article"]["slug"]}),
+                                     HTTP_AUTHORIZATION=user_token1,
+                                     format='json'
+                                     )
+        response5 = self.client.delete(reverse('articles:delete-bookmarked-article',
+                                             kwargs={'slug': response2.data["article"]["slug"]}),
+                                     HTTP_AUTHORIZATION=user_token1,
+                                     format='json'
+                                     )
+       
+        self.assertEqual(response5.data['error'], "Article does not exist in your bookmarks list")
+        self.assertEqual(response4.status_code, status.HTTP_200_OK)
+
+
+
+
+
+

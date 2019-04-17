@@ -1,8 +1,10 @@
 from django.shortcuts import get_object_or_404, render
 from rest_framework import generics ,status
 from .models import Article, ArticleLikeDislike, ReadingStats
+from .models import Article, ArticleLikeDislike, Bookmark
 from authors.apps.profiles.models import Profile
 from . import serializers
+from .renderers import ArticleJSONRenderer
 from rest_framework.response import Response
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
@@ -12,11 +14,11 @@ from django.shortcuts import get_object_or_404
 from authors.apps.comments.models import Comment
 from authors.apps.comments.serializers import CommentSerializer
 from authors.apps.profiles.models import Profile
-from . import serializers
 from .models import Article, ArticleRating
 from .pagination import ArticlePageNumberPagination
 from .permissions import IsOwnerOrReadOnly
 from django.db.models import Q
+from rest_framework.serializers import ValidationError
 
 
 class ListCreateArticle(generics.ListCreateAPIView):
@@ -297,4 +299,60 @@ class RatingsView(generics.CreateAPIView):
                 {'message': 'Rating received'},
                 status = status.HTTP_201_CREATED)
         return Response({"message": "You have already rated."})
+
+
+class BookmarksCreateApiView(generics.CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+    renderer_classes = [ArticleJSONRenderer, ]
+    serializer_class = serializers.BookmarkSerializer
+
+    def post(self, request, *args, **kwargs):
+        """This method creates a bookmark for an article for later reading"""
+        user = request.user
+        article = get_object_or_404(Article, slug=self.kwargs.get('slug'))
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        #Check if article is already bookmarked
+        #Return either true or false
+        is_article_bookmarked = Bookmark.objects.filter(user_id=user.id, article_id=article.id).exists()
+
+        if not is_article_bookmarked:
+            Bookmark.objects.create(article=article, user=user)
+            return Response({'message': 'Article has been bookmarked'}, status=status.HTTP_201_CREATED)
+        return Response(
+            data={'message':'You have already bookmarked this article'}, status=status.HTTP_200_OK
+        )
+
+class DeleteBookmarkAPIView(generics.DestroyAPIView):
+    """
+    class to delete a bookmark 
+    """
+    # queryset = Bookmark.objects.all()
+    serializer_class = serializers.BookmarkSerializer
+    permission_classes = (
+        IsAuthenticated,
+    )
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Method to delete a bookmark
+        """
+        user = request.user
+        article = get_object_or_404(Article, slug=self.kwargs.get('slug'))
+        bookmark =  Bookmark.objects.filter(user_id=user.id, article_id=article.id)
+        if bookmark:
+            bookmark.delete()
+            return Response({'message': 'Article has been unbookmarked'}, status=status.HTTP_200_OK)
+        return Response({'error': 'Article does not exist in your bookmarks list'}, status=status.HTTP_400_BAD_REQUEST)
+
+class BookmarksListView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = serializers.BookmarkSerializer
+
+    def get(self, request):
+        bookmarks = Bookmark.objects.filter(user=request.user).all()
+        if len(bookmarks) < 1:
+            return Response({'message': 'You have not bookmarked any articles yet'}, status=status.HTTP_200_OK )
+        serializer = self.serializer_class(bookmarks, many=True, context={'request':self.request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
         
