@@ -14,7 +14,8 @@ from authors.apps.articles.tests.test_data import (
     changed_article_data,
     article_data_no_body,
     like_data, dislike_data,
-    user1_rating, user2_rating_fail
+    user1_rating, user2_rating_fail, 
+    search_article_data
     )
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -179,3 +180,36 @@ class TestArticle(test_base.BaseTestCase):
 
         rate_again = self.client.post(f'/api/articles/{article_slug}/rate', user1_rating, HTTP_AUTHORIZATION=user_token, format='json')
         self.assertEqual(rate_again.data['message'], 'You have already rated.')
+
+
+    def test_author_search(self):
+        user_token = self.create_user(test_user_data)
+        self.client.post('/api/articles/', search_article_data, HTTP_AUTHORIZATION=user_token, format='json')
+        author_get_resp = self.client.get('/api/articles/?author=testuser', format='json')
+        author = author_get_resp.data.get('results')[0]['author']['username']
+        self.assertEqual('testuser', author)
+
+
+    def test_title_search(self):
+        user_token = self.create_user(test_user_data)
+        self.client.post('/api/articles/', search_article_data, HTTP_AUTHORIZATION=user_token, format='json')
+        title_get_resp = self.client.get('/api/articles/?title=hello', format='json')
+        title = title_get_resp.data.get('results')[0]['title']
+        self.assertEqual('hello slug', title)
+
+    
+    def test_tag_search(self):
+        user_token = self.create_user(test_user_data)
+        self.client.post('/api/articles/', search_article_data, HTTP_AUTHORIZATION=user_token, format='json')
+        tag_get_resp = self.client.get('/api/articles/?tag=Arsenal', format='json')
+        tag = tag_get_resp.data.get('results')[0]['tags']
+        self.assertIn('Arsenal', tag)
+
+
+    def test_keyword_search(self):
+        user_token = self.create_user(test_user_data)
+        self.client.post('/api/articles/', search_article_data, HTTP_AUTHORIZATION=user_token, format='json')
+        keyword_get_resp = self.client.get('/api/articles/?keyword=slu', format='json')
+        article_title = keyword_get_resp.data.get('results')[0]['title']
+        self.assertIn('slu', article_title)
+    

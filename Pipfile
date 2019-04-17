@@ -24,6 +24,7 @@ django-rest-swagger = "*"
 facebook-sdk = "*"
 google-api-python-client = "*"
 python-twitter = "*"
+django-filter = "*"
 
 [requires]
 python_version = "3.6.5"

@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'authors.apps.profiles',
     'authors.apps.articles',
     'authors.apps.comments',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
@@ -149,6 +150,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'authors.apps.authentication.backends.JWTAuthentication',
     ),
+
+    # filter backends
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
 }
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
