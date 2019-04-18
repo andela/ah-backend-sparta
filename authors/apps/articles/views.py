@@ -16,6 +16,7 @@ from . import serializers
 from .models import Article, ArticleRating
 from .pagination import ArticlePageNumberPagination
 from .permissions import IsOwnerOrReadOnly
+from django.db.models import Q
 
 
 class ListCreateArticle(generics.ListCreateAPIView):
@@ -28,6 +29,7 @@ class ListCreateArticle(generics.ListCreateAPIView):
     queryset = Article.objects.all()
     serializer_class = serializers.ArticleSerializer
     pagination_class = ArticlePageNumberPagination
+    search_fields = ('author__username', 'title', 'description', 'body', 'tags')
 
     def get_serializer_context(self):
         """
@@ -47,6 +49,29 @@ class ListCreateArticle(generics.ListCreateAPIView):
 
         serializer.save(author=author, slug=Article.get_slug(article.get('title')))
         return Response({"article": serializer.data})
+
+    def get_queryset(self):
+        queryset = self.queryset
+        author = self.request.query_params.get('author', None)
+        title = self.request.query_params.get('title', None)
+        tag = self.request.query_params.get('tag', None)
+        keyword = self.request.query_params.get('keyword', None)
+
+        if author:
+            queryset = queryset.filter(author__username__icontains=author)
+        elif title:
+            queryset = queryset.filter(title__icontains=title)
+        elif tag:
+            queryset = queryset.filter(tags__icontains=tag)
+        elif keyword:
+            queryset = queryset.filter(
+                Q(title__icontains=keyword) |
+                Q(description__icontains=keyword) |
+                Q(body__icontains=keyword)
+            )
+            
+        return queryset
+    
 
 
 

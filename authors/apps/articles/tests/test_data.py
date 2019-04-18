@@ -4,6 +4,13 @@ article_data = {
 	"body":"changing state --test user"
 }
 
+search_article_data = {
+	"title":"hello slug",
+	"description":"test",
+	"body":"changing state --test user",
+    "tags": ["Arsenal", "soccer"]
+}
+
 changed_article_data = {
 	"title":"hello slug",
 	"description":"test by test user",
