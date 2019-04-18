@@ -18,9 +18,28 @@ class Profile(models.Model):
     lastname = models.CharField(max_length=200, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     image = models.URLField(null=True)
+    follows = models.ManyToManyField(
+        'self',
+        related_name='followed_by',
+        symmetrical=False
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def follow(self, profile):
+        self.follows.add(profile)
+
+    def unfollow(self, profile):
+        self.follows.remove(profile)
+
+    def user_is_already_followed_by_you(self, profile):
+        """
+        This method updates the "following" boolean field
+        depending on if the user retrieving the profile
+        follows the current user or not
+        """
+        self.following = self.followed_by.filter(pk=profile.pk).exists()
+        return self.following
 
     def __str__(self):
         return self.username
@@ -39,6 +58,3 @@ def save_profile(sender, instance, **kwargs):
     Method to save the registered user partial profile
     """
     instance.profile.save()
-
-
-    
