@@ -264,3 +264,7 @@ class RatingsView(generics.CreateAPIView):
                 status = status.HTTP_201_CREATED)
         return Response({"message": "You have already rated."})
         
+class ReportArticle(generics.CreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = serializers.ReportArticleSerializer
+    

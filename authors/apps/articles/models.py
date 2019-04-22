@@ -71,3 +71,12 @@ class ArticleRating(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='ratings')
     ratings = models.IntegerField()
     rating_created = models.DateField(auto_now_add=True)
+
+class ReportArticle(models.Model):
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    message = models.CharField(max_length=500, blank=False)
+    reported_at = models.DateTimeField(auto_now = True)
+
+    def __str__(self):
+        return self.article.title

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from . import models
 from authors.apps.profiles.serializers import ProfileSerializer
-from .models import Article
+from .models import Article, ReportArticle
 from authors.apps.comments.models import Comment
 from authors.apps.comments.serializers import CommentDetailSerializer
 from authors.apps.helpers.share_articles import share_articles_links
@@ -83,3 +83,7 @@ class ArticleRatingSerializer(serializers.ModelSerializer):
         return value
 
         
+class ReportArticleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReportArticle
+        field = '__all__'
