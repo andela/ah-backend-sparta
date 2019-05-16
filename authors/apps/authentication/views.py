@@ -167,12 +167,12 @@ class PasswordResetView(GenericAPIView):
         user = User.objects.filter(email=user_email).first()
         if user:
             token = user._generate_jwt_token()
-            url = get_current_site(request).domain + reverse('password-change',kwargs={'token':token})
+            url = settings.BASE_URL
             send_email = EmailMessage(
                 subject='Authors Haven:Password Reset',
-                body='Click here to reset your password http://{}'.format(url),
+                body='Click here to reset your password {}{}/change/'.format(url, token),
                 from_email= settings.EMAIL_HOST_USER,
-                to=[user.email]
+                to=[user.email] 
                 )
             send_email.send(fail_silently=False)
             return Response({'message':'Password reset link has been sent to your Email'},
