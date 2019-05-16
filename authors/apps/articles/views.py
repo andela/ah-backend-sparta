@@ -26,7 +26,7 @@ class ListCreateArticle(generics.ListCreateAPIView):
     """
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    queryset = Article.objects.all()
+    queryset = Article.objects.all().order_by('-createdAt')
     serializer_class = serializers.ArticleSerializer
     pagination_class = ArticlePageNumberPagination
     search_fields = ('author__username', 'title', 'description', 'body', 'tags')
