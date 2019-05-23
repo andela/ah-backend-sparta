@@ -117,21 +117,39 @@ class CommentCreateAPIView(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
+        comment = request.data.get('comment', {})
+        start_point = comment.get('start_position',0)
+        end_point = comment.get('end_position',0)
+        
+        if not isinstance(end_point, int) or not isinstance(start_point, int):
+            return Response(
+                {
+                    "error": "Highlited startpoint and endpoint fields should be integers."
+                }, status=status.HTTP_400_BAD_REQUEST)
+        if start_point > end_point:
+            return Response(
+                {
+                    "error": "Startpoint should be less than Endpoint"
+                }, status=status.HTTP_400_BAD_REQUEST)
         article = Article.objects.get(slug=self.kwargs.get('slug'))
-
+        body = article.body
+        if end_point > len(body) or start_point > len(body):
+            return Response(
+                {
+                    "error": "Startpoint or Endpoint out of article text range"
+                }, status=status.HTTP_400_BAD_REQUEST)
+        article_text = body[start_point:end_point]
+        comment['article_text']=article_text
+        comment['article']=article.pk
+        serializer_data = self.get_serializer(data=comment)
+        serializer_data.is_valid(raise_exception=True)
         comment =  request.data.get("comment")
         author = request.user.id
-
-        serialized_data = self.serializer_class(data=comment)
-
-        serialized_data.is_valid(raise_exception=True)
-        serialized_data.save(article_id=article.id, author_id=author)
-
+        serializer_data.save(author=self.request.user)
         return Response(
-            data=serialized_data.data, status=status.HTTP_201_CREATED
+            data=serializer_data.data, status=status.HTTP_201_CREATED
 
         )
-
 
 class CreateReplyToCommentAPIView(generics.CreateAPIView):
     """
@@ -154,7 +172,7 @@ class CreateReplyToCommentAPIView(generics.CreateAPIView):
 
         )
 
-
+        
 class DeleteUpdateCommentAPIView(generics.RetrieveUpdateDestroyAPIView):
     """
     class to delete a comment on an article

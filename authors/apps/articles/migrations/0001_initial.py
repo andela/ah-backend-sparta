@@ -31,4 +31,5 @@ class Migration(migrations.Migration):
                 'get_latest_by': ['id'],
             },
         ),
-    ]
+    ]   
+ 

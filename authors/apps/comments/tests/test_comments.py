@@ -11,7 +11,11 @@ from .test_data import (
     reply_to_comment1,
     reply_to_comment2,
     update_comment_data,
-    register_user2_data
+    register_user2_data,
+    highlight_comment_data,
+    invalid_comment, 
+    out_of_range_data,
+    startpoint_less_endpoint
 )
 
 
@@ -37,6 +41,78 @@ class TestArticleComments(BaseTestCase):
                                      )
         self.assertEqual(response3.data["body"], "We love our TTl")
         self.assertEqual(response3.status_code, status.HTTP_201_CREATED)
+
+    def test_highlighting_comment_to_article_text(self):
+        """
+        Method to test highlighting and commenting an article text
+        """
+        user_token1 = self.create_user(register_user1_data)
+        response1 = self.client.put('/api/profiles/maria22', update_user_profile_data1,
+                                    HTTP_AUTHORIZATION=user_token1,
+                                    format='json')
+        response2 = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user_token1,
+                                     format='json')
+        response3 = self.client.post(reverse('articles:create-article-comment',
+                                             kwargs={'slug': response2.data["article"]["slug"]}), highlight_comment_data,
+                                     HTTP_AUTHORIZATION=user_token1,
+                                     format='json'
+                                     )
+        self.assertEqual(response3.data["article_text"], "his")
+        self.assertEqual(response3.status_code, status.HTTP_201_CREATED)
+
+    def test_invalid_highlighting_comment_to_article_text(self):
+        """
+        Method to test highlighting text with invalid start point and endpoint
+        """
+        user_token1 = self.create_user(register_user1_data)
+        response1 = self.client.put('/api/profiles/maria22', update_user_profile_data1,
+                                    HTTP_AUTHORIZATION=user_token1,
+                                    format='json')
+        response2 = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user_token1,
+                                     format='json')
+        response3 = self.client.post(reverse('articles:create-article-comment',
+                                             kwargs={'slug': response2.data["article"]["slug"]}), invalid_comment,
+                                     HTTP_AUTHORIZATION=user_token1,
+                                     format='json'
+                                     )
+        self.assertEqual(response3.data["error"], "Highlited startpoint and endpoint fields should be integers.")
+        self.assertEqual(response3.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_startpoint_endpoint_out_of_range(self):
+        """
+        Method to test highlighting text with start point and endpoint out of range
+        """
+        user_token1 = self.create_user(register_user1_data)
+        response1 = self.client.put('/api/profiles/maria22', update_user_profile_data1,
+                                    HTTP_AUTHORIZATION=user_token1,
+                                    format='json')
+        response2 = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user_token1,
+                                     format='json')
+        response3 = self.client.post(reverse('articles:create-article-comment',
+                                             kwargs={'slug': response2.data["article"]["slug"]}), out_of_range_data,
+                                     HTTP_AUTHORIZATION=user_token1,
+                                     format='json'
+                                     )
+        self.assertEqual(response3.data["error"], "Startpoint or Endpoint out of article text range")
+        self.assertEqual(response3.status_code, status.HTTP_400_BAD_REQUEST)        
+
+    def test_startpoint_less_than_endpoint(self):
+        """
+        Method to test highlighting text with start point less endpoint
+        """
+        user_token1 = self.create_user(register_user1_data)
+        response1 = self.client.put('/api/profiles/maria22', update_user_profile_data1,
+                                    HTTP_AUTHORIZATION=user_token1,
+                                    format='json')
+        response2 = self.client.post('/api/articles/', article_data, HTTP_AUTHORIZATION=user_token1,
+                                     format='json')
+        response3 = self.client.post(reverse('articles:create-article-comment',
+                                             kwargs={'slug': response2.data["article"]["slug"]}), startpoint_less_endpoint,
+                                     HTTP_AUTHORIZATION=user_token1,
+                                     format='json'
+                                     )
+        self.assertEqual(response3.data["error"], "Startpoint should be less than Endpoint")
+        self.assertEqual(response3.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_replying_to_comment(self):
         """
