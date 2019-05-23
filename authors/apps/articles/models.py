@@ -45,16 +45,14 @@ class Article(models.Model):
         word_count = 0
         word_count += len(self.body) / int(settings.WORD_LENGTH)
         result = int(word_count / int(settings.WORD_PER_MINUTE))
-
         read_time =  f"{result} minute read" if result >= 1 else "less than a minute read"
-        
         return read_time
 
     @property
     def average_rating(self):
         ratings = self.ratings.all().aggregate(ratings=models.Avg("ratings"))
         return float('%.2f' % (ratings["ratings"])) if ratings["ratings"] else None
-        
+
 
     def __str__(self):
         return self.title
@@ -65,7 +63,6 @@ class ArticleLikeDislike(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     likes = models.BooleanField(default=False, null=True)
     createdAt = models.DateTimeField(auto_now_add=True)
-    
 class ArticleRating(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='ratings')
@@ -75,3 +72,8 @@ class ArticleRating(models.Model):
 class ReadingStats(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, blank=True)
+class Bookmark(models.Model):
+    """Model for creating bookmarks of an article by a user for reading later."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=False)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -8,7 +8,10 @@ from .views import (
     DeleteUpdateCommentAPIView,
     ArticleLikeDislikeView,
     FavoriteArticle,
-    RatingsView
+    RatingsView,
+    BookmarksCreateApiView,
+    DeleteBookmarkAPIView,
+    BookmarksListView
 )
 
 app_name = "article_application"
@@ -23,4 +26,9 @@ urlpatterns = [
     path('articles/<slug>/like', ArticleLikeDislikeView.as_view(), name='like-dislike'),
     path('articles/<slug>/favorite', FavoriteArticle.as_view(), name='favorite'),
     path("articles/<slug>/rate", RatingsView.as_view(), name="rating"),
+
+    #Bookmarks urls
+    path('articles/<slug>/bookmark/', BookmarksCreateApiView.as_view(), name="create-bookmark-article"),
+    path('articles/<slug>/bookmark/delete', DeleteBookmarkAPIView.as_view(), name="delete-bookmarked-article"),
+    path('bookmarks/', BookmarksListView.as_view(), name="articles-bookmarked"),
 ]

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from . import models
 from authors.apps.profiles.serializers import ProfileSerializer
-from .models import Article
+from .models import (Article, Bookmark)
 from authors.apps.comments.models import Comment
 from authors.apps.comments.serializers import CommentDetailSerializer
 from authors.apps.authentication.serializers import UserSerializer
@@ -90,3 +90,10 @@ class ReadingStatsSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ["article"]
         model = models.ReadingStats
+
+class BookmarkSerializer(serializers.ModelSerializer):
+    article = ArticleSerializer(read_only=True)
+
+    class Meta:
+        model = Bookmark
+        fields = ('id', 'article', 'created_at',)
